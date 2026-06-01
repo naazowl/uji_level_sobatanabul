@@ -1,20 +1,37 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:app1/models/pet_model.dart';
+import 'package:app1/screens/edit_pet_screen.dart';
 
 class PetCard extends StatelessWidget {
   final PetModel pet;
 
-  // 💡 ERROR FIXED: Kata 'Bennett' yang typo di sini sudah dihapus
   const PetCard({super.key, required this.pet});
+
+  Widget _buildPetImage() {
+    if (pet.isLocalFile ?? false) {
+      if (kIsWeb) {
+        return Image.network(pet.imagePath, fit: BoxFit.cover);
+      } else {
+        return Image.file(File(pet.imagePath), fit: BoxFit.cover);
+      }
+    }
+    return Image.asset(
+      pet.imagePath,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => const Icon(Icons.pets, size: 40, color: Colors.grey),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: 160,
-      height: 220, // 💡 Lebar & panjang kartu disesuaikan supaya muat foto kotak + teks tanpa sesak
+      height: 220, 
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20), // Rounded pas sesuai Figma
+        borderRadius: BorderRadius.circular(20), 
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.06),
@@ -24,64 +41,35 @@ class PetCard extends StatelessWidget {
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start, // 💡 Teks rata kiri sesuai Figma
+        crossAxisAlignment: CrossAxisAlignment.start, 
         children: [
-          // ── AREA GAMBAR (Biru Muda Kotak Mengikuti Sisi Kartu) ──
           Container(
-            height: 150, // Tinggi area biru
-            width: double.infinity, // Memenuhi lebar kartu (160)
+            height: 150, 
+            width: double.infinity, 
             decoration: const BoxDecoration(
-              color: Color(0xFFDBEFF8), // Warna biru muda Figma
-              borderRadius: BorderRadius.vertical(top: Radius.circular(20)), // Rounded hanya di atas
+              color: Color(0xFFDBEFF8), 
+              borderRadius: BorderRadius.vertical(top: Radius.circular(20)), 
             ),
-            child: GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => DetailPetScreen(pet: pet),
-                  ),
-                );
-              },
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                child: pet.imagePath.startsWith('http')
-                    ? Image.network(
-                        pet.imagePath, 
-                        fit: BoxFit.cover, // 💡 Mengisi penuh area biru kotak dengan rapi
-                      )
-                    : Image.asset(
-                        pet.imagePath, 
-                        fit: BoxFit.cover, // 💡 Mengisi penuh area biru kotak dengan rapi
-                      ),
-              ),
+            child: ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+              child: _buildPetImage(), 
             ),
           ),
-          
-          // ── AREA INFO (Nama & Umur) ──
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 12, 14, 14), // Jarak teks ke tepi kartu
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 14), 
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   pet.name,
                   maxLines: 1,
-                  overflow: TextOverflow.ellipsis, // Menghindari text overflow kalau nama panjang
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF1A1A1A),
-                  ),
+                  overflow: TextOverflow.ellipsis, 
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF1A1A1A)),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   pet.age,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF9E9E9E),
-                  ),
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: Color(0xFF9E9E9E)),
                 ),
               ],
             ),
@@ -92,13 +80,39 @@ class PetCard extends StatelessWidget {
   }
 }
 
-// ════════════════════════════════════════════════════
-//  DETAIL PET SCREEN — Sesuai Desain Figma Kamu
-// ════════════════════════════════════════════════════
-class DetailPetScreen extends StatelessWidget {
+// ── DETAIL PET SCREEN (STATEFUL AGAR DI-REFRESH REALTIME) ──
+class DetailPetScreen extends StatefulWidget {
   final PetModel pet;
 
   const DetailPetScreen({super.key, required this.pet});
+
+  @override
+  State<DetailPetScreen> createState() => _DetailPetScreenState();
+}
+
+class _DetailPetScreenState extends State<DetailPetScreen> {
+  late PetModel _currentPet;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentPet = widget.pet;
+  }
+
+  Widget _buildDetailAvatar() {
+    if (_currentPet.isLocalFile ?? false) {
+      if (kIsWeb) {
+        return Image.network(_currentPet.imagePath, fit: BoxFit.cover);
+      } else {
+        return Image.file(File(_currentPet.imagePath), fit: BoxFit.cover);
+      }
+    }
+    return Image.asset(
+      _currentPet.imagePath,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => const Icon(Icons.pets, size: 60, color: Colors.grey),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,15 +130,11 @@ class DetailPetScreen extends StatelessWidget {
                   width: double.infinity,
                   decoration: const BoxDecoration(
                     color: Color(0xFFDBEFF8),
-                    borderRadius: BorderRadius.vertical(
-                      bottom: Radius.circular(120),
-                    ),
+                    borderRadius: BorderRadius.vertical(bottom: Radius.circular(120)),
                   ),
                 ),
                 Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
+                  top: 0, left: 0, right: 0,
                   child: SafeArea(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -132,25 +142,17 @@ class DetailPetScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.6),
-                              shape: BoxShape.circle,
-                            ),
+                            width: 40, height: 40,
+                            decoration: BoxDecoration(color: Colors.white.withOpacity(0.6), shape: BoxShape.circle),
                             child: IconButton(
                               padding: EdgeInsets.zero,
                               icon: const Icon(Icons.arrow_back_ios_new, size: 16, color: Colors.black),
-                              onPressed: () => Navigator.pop(context),
+                              onPressed: () => Navigator.pop(context, _currentPet), // Lempar objek baru ke Home
                             ),
                           ),
                           Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.6),
-                              shape: BoxShape.circle,
-                            ),
+                            width: 40, height: 40,
+                            decoration: BoxDecoration(color: Colors.white.withOpacity(0.6), shape: BoxShape.circle),
                             child: const Icon(Icons.more_horiz, color: Colors.black),
                           ),
                         ],
@@ -161,39 +163,22 @@ class DetailPetScreen extends StatelessWidget {
                 Positioned(
                   bottom: 20,
                   child: Container(
-                    width: 200,
-                    height: 200,
+                    width: 200, height: 200,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: const Color(0xFFDBEFF8),
                       border: Border.all(color: Colors.white, width: 6),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
-                        )
-                      ],
+                      boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 20, offset: const Offset(0, 8))],
                     ),
-                    child: ClipOval(
-                      child: Image.asset(
-                        'assets/images/cello duduk.jpg',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+                    child: ClipOval(child: _buildDetailAvatar()),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 28),
             Text(
-              pet.name,
-              style: const TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 0.5,
-                color: Color(0xFF1A1A1A),
-              ),
+              _currentPet.name, 
+              style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w900, color: Color(0xFF1A1A1A)),
             ),
             const SizedBox(height: 24),
             Padding(
@@ -201,9 +186,9 @@ class DetailPetScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildInfoBox(pet.age, 'Umur'),
-                  _buildInfoBox('30 kg', 'Berat'),
-                  _buildInfoBox('Jantan', 'Jenis\nKelamin'),
+                  _buildInfoBox(_currentPet.age, 'Umur'), 
+                  _buildInfoBox(_currentPet.weight ?? '-', 'Berat'), 
+                  _buildInfoBox(_currentPet.gender ?? '-', 'Jenis\nKelamin'), 
                 ],
               ),
             ),
@@ -213,18 +198,11 @@ class DetailPetScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Catatan Khusus',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF1A1A1A),
-                    ),
-                  ),
+                  const Text('Catatan Khusus', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Color(0xFF1A1A1A))),
                   const SizedBox(height: 16),
                   _buildNoteTile(
                     icon: Icons.format_list_bulleted_rounded,
-                    text: 'Takut suara petir',
+                    text: _currentPet.specialNotes ?? 'Tidak ada catatan khusus', 
                     bgColor: const Color(0xFFFDE8D7),
                     iconBgColor: const Color(0xFFFF8C42),
                   ),
@@ -234,6 +212,19 @@ class DetailPetScreen extends StatelessWidget {
                     text: 'Edit data hewan',
                     bgColor: const Color(0xFFE0D9FF),
                     iconBgColor: const Color(0xFF7C5CFC),
+                    onTap: () async {
+                      // Ambil Map kiriman EditPetScreen
+                      final Map<String, dynamic>? hasilEdit = await Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => EditPetScreen(pet: _currentPet)),
+                      );
+
+                      if (hasilEdit != null && hasilEdit['pet'] != null) {
+                        setState(() {
+                          _currentPet = hasilEdit['pet'] as PetModel;
+                        });
+                      }
+                    },
                   ),
                 ],
               ),
@@ -253,34 +244,13 @@ class DetailPetScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFFDBEFF8),
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.03),
-              blurRadius: 10,
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10)],
         ),
         child: Column(
           children: [
-            Text(
-              value,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontWeight: FontWeight.w800,
-                fontSize: 15,
-                color: Color(0xFF1A1A1A),
-              ),
-            ),
+            Text(value, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: Color(0xFF1A1A1A))),
             const SizedBox(height: 4),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Color(0xFF6F777A),
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
+            Text(label, textAlign: TextAlign.center, style: const TextStyle(color: Color(0xFF6F777A), fontSize: 12, fontWeight: FontWeight.w500)),
           ],
         ),
       ),
@@ -292,34 +262,26 @@ class DetailPetScreen extends StatelessWidget {
     required String text,
     required Color bgColor,
     required Color iconBgColor,
+    VoidCallback? onTap, 
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: iconBgColor,
-              borderRadius: BorderRadius.circular(14),
+    return GestureDetector(
+      onTap: onTap, 
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(20)),
+        child: Row(
+          children: [
+            Container(
+              width: 48, height: 48,
+              decoration: BoxDecoration(color: iconBgColor, borderRadius: BorderRadius.circular(14)),
+              child: Icon(icon, color: Colors.white, size: 24),
             ),
-            child: Icon(icon, color: Colors.white, size: 24),
-          ),
-          const SizedBox(width: 16),
-          Text(
-            text,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF1A1A1A),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(text, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF1A1A1A))),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

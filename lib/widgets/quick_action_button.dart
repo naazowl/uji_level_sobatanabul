@@ -1,27 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:app1/theme/app_theme.dart';
-
-// Ganti isi file: lib/widgets/quick_action_button.dart
-// Tambahkan parameter onTap agar bisa navigate ke screen lain
+import 'package:app1/screens/chat_screen.dart'; // ← tambah import
 
 class QuickActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color backgroundColor;
-  final VoidCallback? onTap; // ← parameter baru (opsional, tidak wajib diisi)
+  final VoidCallback? onTap;
 
   const QuickActionButton({
     super.key,
     required this.icon,
     required this.label,
     required this.backgroundColor,
-    this.onTap, // ← opsional, tombol lain tidak perlu diubah
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap, // ← connect ke fungsi navigate
+      onTap: onTap ?? _defaultOnTap(context), // ← fallback jika onTap null
       child: Column(
         children: [
           Container(
@@ -46,5 +44,16 @@ class QuickActionButton extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // ← jika label 'Chat' dan onTap null, otomatis navigate ke ChatScreen
+  VoidCallback? _defaultOnTap(BuildContext context) {
+    if (label == 'Chat') {
+      return () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const ChatScreen(messages: [])),
+      );
+    }
+    return null;
   }
 }

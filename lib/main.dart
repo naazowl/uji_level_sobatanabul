@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
-import 'theme/app_theme.dart';
+
+// 💡 IMPORT SCREENS: Pastikan mengimpor file splash dan onboarding kamu
+import 'package:app1/screens/splash_screen.dart';
+import 'package:app1/screens/onboarding_screen.dart';
+import 'package:app1/screens/home_screen.dart';
+import 'package:app1/theme/app_theme.dart';
 
 void main() {
   runApp(const SobatAnabulApp());
@@ -15,7 +19,9 @@ class SobatAnabulApp extends StatelessWidget {
       title: 'SobatAnabul',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.theme,
-      home: const HomeScreen(),
+      
+      // 💡 PERBAIKAN: Ganti HomeScreen() menjadi SplashScreen() sebagai gerbang utama
+      home: const SplashScreen(),
     );
   }
 }
