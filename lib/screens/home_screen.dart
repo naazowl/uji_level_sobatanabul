@@ -1,3 +1,13 @@
+// lib/screens/home_screen.dart
+// Gabungan dari dua versi:
+//   1. Parameter opsional dari CompleteProfileScreen (v2).
+//   2. initState untuk inisialisasi data user (v2).
+//   3. Badge merah notifikasi hanya muncul jika ada notifikasi (v1).
+//   4. setState refresh badge setelah kembali dari TitipScreen (v1).
+//   5. Handling delete & update pet via Map result (v1).
+//   6. Styling top bar dengan Material + elevation (v1).
+//   7. errorBuilder 3 parameter yang benar (v2).
+
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,48 +19,73 @@ import 'package:app1/screens/profile_screen.dart';
 import 'package:app1/screens/info_screen.dart';
 import 'package:app1/screens/riwayat_screen.dart';
 import 'package:app1/screens/laporan_harian_screen.dart';
-import 'package:app1/screens/calling_screen.dart';
 import 'package:app1/screens/chat_screen.dart';
 import 'package:app1/screens/edit_pet_screen.dart';
 import 'package:app1/screens/location_screen.dart';
 import 'package:app1/screens/onboarding_screen.dart';
-import 'package:app1/screens/splash_screen.dart';
 import 'package:app1/screens/add_pet_screen.dart';
 
-// Import Models, Theme, & Widgets
+// Import Models, Theme, Widgets & Provider
 import 'package:app1/models/pet_model.dart';
+import 'package:app1/models/riwayat_provider.dart';
 import 'package:app1/theme/app_theme.dart';
 import 'package:app1/widgets/quick_action_button.dart';
 import 'package:app1/widgets/riwayat/daily_report_banner.dart';
-import 'package:app1/widgets/riwayat/pet_card.dart'; 
+import 'package:app1/widgets/riwayat/pet_card.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  // ✅ Parameter opsional dari CompleteProfileScreen
+  final String? namaAwal;
+  final String? emailAwal;
+  final String? usernameAwal;
+  final String? teleponAwal;
+  final String? imagePathAwal;
+  // alamat TIDAK dari form, dikelola LocationScreen
+
+  const HomeScreen({
+    super.key,
+    this.namaAwal,
+    this.emailAwal,
+    this.usernameAwal,
+    this.teleponAwal,
+    this.imagePathAwal,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String _namaUser = 'Halo, Naresa!';
-  String _emailUser = 'Naresa@gmail.com';
-  String _usernameUser = 'Naresarena';
-  String _alamatUser = 'Kota Bogor, Indonesia';
-  String _teleponUser = '12345678910';
+  late String _namaUser;
+  late String _emailUser;
+  late String _usernameUser;
+  late String _alamatUser;
+  late String _teleponUser;
   String? _imagePathUser;
 
-  // List dinamis kosong untuk Peliharaan
-  List<PetModel> _pets = [];
+  final List<PetModel> _pets = [];
+  final List<ChatMessage> _chatMessages = [];
 
-  // 🟢 PERBAIKAN: Memastikan list dideklarasikan sebagai growable secara eksplisit untuk Web platform
-  final List<ChatMessage> _riwayatChat = List<ChatMessage>.empty(growable: true);
+  @override
+  void initState() {
+    super.initState();
+    // ✅ Gunakan data dari CompleteProfileScreen jika ada, fallback ke default
+    _namaUser     = widget.namaAwal     ?? 'Naresa';
+    _emailUser    = widget.emailAwal    ?? 'Naresa@gmail.com';
+    _usernameUser = widget.usernameAwal ?? 'Naresarena';
+    _alamatUser   = 'Kota Bogor, Indonesia'; // dikelola LocationScreen
+    _teleponUser  = widget.teleponAwal  ?? '12345678910';
+    _imagePathUser = widget.imagePathAwal;
+  }
 
   Widget _buildAvatarImage() {
     if (_imagePathUser != null) {
       if (kIsWeb) {
-        return Image.network(_imagePathUser!, width: 52, height: 52, fit: BoxFit.cover);
+        return Image.network(_imagePathUser!,
+            width: 52, height: 52, fit: BoxFit.cover);
       } else {
-        return Image.file(File(_imagePathUser!), width: 52, height: 52, fit: BoxFit.cover);
+        return Image.file(File(_imagePathUser!),
+            width: 52, height: 52, fit: BoxFit.cover);
       }
     }
     return Image.asset(
@@ -59,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
       height: 52,
       fit: BoxFit.cover,
       errorBuilder: (_, __, ___) => const Icon(
-        Icons.person,
+        Icons.person_rounded,
         size: 26,
         color: Colors.purple,
       ),
@@ -68,114 +103,181 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ Badge merah hanya muncul jika ada notifikasi
+    final hasNotifications = RiwayatProvider().notifications.isNotEmpty;
+
     return Scaffold(
       backgroundColor: AppColors.bgLight,
       body: SafeArea(
         child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
-              // ── TOP BAR (Notification, Location, Logout) ───────────────────────
+              // ── TOP BAR ───────────────────────────────────────────────────
               Padding(
                 padding: const EdgeInsets.only(top: 12),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const NotificationScreen()),
-                        );
-                      },
-                      child: Stack(
-                        children: [
-                          const Icon(Icons.notifications_outlined, size: 28),
-                          Positioned(
-                            top: 0,
-                            right: 0,
-                            child: Container(
-                              width: 10,
-                              height: 10,
-                              decoration: const BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
-                              ),
+                    // Notification Button
+                    Material(
+                      color: Colors.white,
+                      shape: const CircleBorder(),
+                      shadowColor: Colors.black.withOpacity(0.04),
+                      elevation: 2,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(100),
+                        onTap: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const NotificationScreen(),
                             ),
+                          );
+                          // ✅ Refresh badge setelah kembali dari notifikasi
+                          setState(() {});
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Stack(
+                            children: [
+                              const Icon(Icons.notifications_none_rounded,
+                                  size: 24, color: AppColors.textDark),
+                              // ✅ Badge merah kondisional
+                              if (hasNotifications)
+                                Positioned(
+                                  top: 2,
+                                  right: 2,
+                                  child: Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: const BoxDecoration(
+                                      color: Colors.red,
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
-                        ],
-                      ),
-                    ),
-
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const LocationScreen()),
-                        );
-                      },
-                      behavior: HitTestBehavior.opaque,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 5),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.location_on, size: 18, color: AppColors.textDark),
-                            const SizedBox(width: 10),
-                            Text(
-                              _alamatUser,
-                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
-                            ),
-                          ],
                         ),
                       ),
                     ),
 
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => const OnboardingScreen()),
-                          (route) => false,
-                        );
-                      },
-                      child: const Icon(Icons.logout, size: 26),
+                    // Location Selector
+                    Material(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      shadowColor: Colors.black.withOpacity(0.04),
+                      elevation: 2,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(20),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const LocationScreen(),
+                            ),
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 8),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.location_on_rounded,
+                                  size: 16, color: AppColors.primary),
+                              const SizedBox(width: 6),
+                              Text(
+                                _alamatUser,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                  color: AppColors.textDark,
+                                ),
+                              ),
+                              const SizedBox(width: 2),
+                              const Icon(Icons.keyboard_arrow_down_rounded,
+                                  size: 16, color: AppColors.textGrey),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Logout Button
+                    Material(
+                      color: Colors.white,
+                      shape: const CircleBorder(),
+                      shadowColor: Colors.black.withOpacity(0.04),
+                      elevation: 2,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(100),
+                        onTap: () {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const OnboardingScreen()),
+                            (route) => false,
+                          );
+                        },
+                        child: const Padding(
+                          padding: EdgeInsets.all(10.0),
+                          child: Icon(Icons.logout_rounded,
+                              size: 22, color: AppColors.textDark),
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
 
-              const SizedBox(height: 36),
+              const SizedBox(height: 32),
 
-              // ── Greeting Section ─────────────────────────────────────
+              // ── GREETING SECTION ─────────────────────────────────────────
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _namaUser.startsWith('Halo,') ? _namaUser : 'Halo, $_namaUser!',
-                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: AppColors.textDark),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Ayo Titipkan dan Rawat Peliharaan Anda!',
-                        style: TextStyle(fontSize: 13, color: AppColors.textGrey, fontWeight: FontWeight.w500),
-                      ),
-                    ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Halo, $_namaUser!',
+                          style: const TextStyle(
+                            fontSize: 26,
+                            height: 1.2,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.textDark,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Ayo Titipkan dan Rawat Peliharaan Anda!',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textDark.withOpacity(0.6),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-
+                  const SizedBox(width: 12),
                   GestureDetector(
                     onTap: () async {
-                      final Map<String, dynamic>? dataTerbaru = await Navigator.push(
+                      final Map<String, dynamic>? dataTerbaru =
+                          await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ProfileScreen(
-                            nama: _namaUser.replaceAll('Halo, ', '').replaceAll('!', ''),
+                          builder: (_) => ProfileScreen(
+                            nama: _namaUser,
                             email: _emailUser,
                             username: _usernameUser,
                             alamat: _alamatUser,
@@ -187,162 +289,273 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       if (dataTerbaru != null) {
                         setState(() {
-                          _namaUser = dataTerbaru['nama']!;
-                          _emailUser = dataTerbaru['email']!;
+                          _namaUser     = dataTerbaru['nama']!;
+                          _emailUser    = dataTerbaru['email']!;
                           _usernameUser = dataTerbaru['username']!;
-                          _alamatUser = dataTerbaru['alamat']!;
-                          _teleponUser = dataTerbaru['telepon']!;
+                          _alamatUser   = dataTerbaru['alamat']!;
+                          _teleponUser  = dataTerbaru['telepon']!;
                           _imagePathUser = dataTerbaru['imagePath'];
                         });
                       }
                     },
-                    child: CircleAvatar(
-                      radius: 26,
-                      backgroundColor: const Color(0xFFEEE0FF),
-                      child: ClipOval(child: _buildAvatarImage()),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 3),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.08),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          )
+                        ],
+                      ),
+                      child: CircleAvatar(
+                        radius: 26,
+                        backgroundColor: const Color(0xFFEEE0FF),
+                        child: ClipOval(
+                          child: _buildAvatarImage(),
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 36),
+              const SizedBox(height: 32),
 
-              // ── Quick Actions ─────────────────────────────────
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  QuickActionButton(
-                    icon: Icons.star_border_rounded,
-                    label: 'Titip',
-                    backgroundColor: AppColors.iconBlueBg,
-                    onTap: () {
-                      final mappedPets = _pets.map((pet) => {
-                        'pet': pet,
-                        'jenisHewan': 'Anjing',
-                      }).toList();
-                      Navigator.push(
+              // ── QUICK ACTIONS ─────────────────────────────────────────────
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    QuickActionButton(
+                      icon: Icons.star_border_rounded,
+                      label: 'Titip',
+                      backgroundColor: AppColors.iconBlueBg,
+                      onTap: () async {
+                        final mappedPets = _pets
+                            .map((pet) => {
+                                  'pet': pet,
+                                  'jenisHewan': pet.jenisHewan,
+                                })
+                            .toList();
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => TitipScreen(pets: mappedPets),
+                          ),
+                        );
+                        // ✅ Refresh badge setelah kembali dari TitipScreen
+                        setState(() {});
+                      },
+                    ),
+                    QuickActionButton(
+                      icon: Icons.favorite_border_rounded,
+                      label: 'Info',
+                      backgroundColor: AppColors.iconOrangeBg,
+                      onTap: () => Navigator.push(
                         context,
-                        // 🟢 PERBAIKAN: Menghapus typo 'mappedMappedPets'
-                        MaterialPageRoute(builder: (context) => TitipScreen(pets: mappedPets)),
-                      );
-                    },
-                  ),
-                  QuickActionButton(
-                    icon: Icons.favorite_border_rounded,
-                    label: 'Info',
-                    backgroundColor: AppColors.iconOrangeBg,
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const InfoScreen())),
-                  ),
-                  
-                  QuickActionButton(
-                    icon: Icons.chat_bubble_outline_rounded,
-                    label: 'Chat',
-                    backgroundColor: AppColors.iconPinkBg,
-                    onTap: () {
-                      Navigator.push(
+                        MaterialPageRoute(builder: (_) => const InfoScreen()),
+                      ),
+                    ),
+                    QuickActionButton(
+                      icon: Icons.chat_bubble_outline_rounded,
+                      label: 'Chat',
+                      backgroundColor: AppColors.iconPinkBg,
+                      onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ChatScreen(messages: _riwayatChat),
+                          builder: (_) => ChatScreen(messages: _chatMessages),
                         ),
-                      ).then((_) {
-                        setState(() {});
-                      });
-                    },
-                  ),
-                  
-                  QuickActionButton(
-                    icon: Icons.sync_rounded,
-                    label: 'Riwayat',
-                    backgroundColor: AppColors.iconYellowBg,
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RiwayatScreen())),
-                  ),
-                ],
+                      ),
+                    ),
+                    QuickActionButton(
+                      icon: Icons.sync_rounded,
+                      label: 'Riwayat',
+                      backgroundColor: AppColors.iconYellowBg,
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => const RiwayatScreen()),
+                      ),
+                    ),
+                  ],
+                ),
               ),
 
-              const SizedBox(height: 36),
+              const SizedBox(height: 28),
 
-              // ── Daily Report Banner ───────────────────────────
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const LaporanHarianScreen()));
-                },
-                child: DailyReportBanner(),
+              // ── DAILY REPORT BANNER ───────────────────────────────────────
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.purple.withOpacity(0.12),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    )
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const LaporanHarianScreen(),
+                        ),
+                      ),
+                      child: DailyReportBanner(),
+                    ),
+                  ),
+                ),
               ),
 
-              const SizedBox(height: 36),
+              const SizedBox(height: 32),
 
-              // ── Section Title: Peliharaan Ku (Tombol Tambah) ─────────────────────────────────
+              // ── PELIHARAAN KU ─────────────────────────────────────────────
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
                     'Peliharaan Ku',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.textDark),
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textDark,
+                      letterSpacing: -0.3,
+                    ),
                   ),
-                  GestureDetector(
-                    onTap: () async {
-                      final Map<String, dynamic>? result = await Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const AddPetScreen()),
-                      );
+                  Material(
+                    color: AppColors.primary,
+                    shape: const CircleBorder(),
+                    shadowColor: AppColors.primary.withOpacity(0.3),
+                    elevation: 4,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(100),
+                      onTap: () async {
+                        final Map<String, dynamic>? result =
+                            await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const AddPetScreen()),
+                        );
 
-                      if (result != null && result['pet'] != null) {
-                        setState(() {
-                          _pets.add(result['pet'] as PetModel);
-                        });
-                      }
-                    },
-                    child: Container(
-                      width: 46,
-                      height: 46,
-                      decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-                      child: const Icon(Icons.add, color: Colors.white, size: 24),
+                        if (result != null && result['pet'] != null) {
+                          setState(() {
+                            _pets.add(result['pet'] as PetModel);
+                          });
+                        }
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.all(10.0),
+                        child: Icon(Icons.add_rounded,
+                            color: Colors.white, size: 22),
+                      ),
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 22),
+              const SizedBox(height: 16),
 
-              // ── AREA LIST KARTU ANABUL ──
+              // ── PET CARDS ─────────────────────────────────────────────────
               SizedBox(
-                height: 240,
+                height: 250,
                 child: _pets.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'Belum ada peliharaan.\nKlik tombol + untuk menambahkan.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.grey),
+                    ? Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                                color: Colors.grey.withOpacity(0.15)),
+                          ),
+                          child: const Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.pets_rounded,
+                                  size: 36, color: Colors.grey),
+                              SizedBox(height: 10),
+                              Text(
+                                'Belum ada peliharaan.\nKlik tombol + di atas untuk menambahkan.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.grey,
+                                  height: 1.4,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       )
                     : ListView.separated(
                         scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
                         itemCount: _pets.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 16),
+                        separatorBuilder: (_, __) =>
+                            const SizedBox(width: 16),
                         itemBuilder: (context, index) {
+                          final currentPet = _pets[index];
                           return GestureDetector(
                             onTap: () async {
                               final updatedPet = await Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => DetailPetScreen(pet: _pets[index]),
+                                  builder: (_) => DetailPetScreen(
+                                    pet: currentPet,
+                                    berat: currentPet.weight ?? '- kg',
+                                    jenisKelamin:
+                                        currentPet.gender ?? 'Jantan',
+                                    catatan:
+                                        currentPet.specialNotes ?? '-',
+                                    ras: currentPet.breed ?? '-',
+                                    jenisHewan: currentPet.jenisHewan,
+                                  ),
                                 ),
                               );
 
-                              if (updatedPet != null && updatedPet is PetModel) {
-                                setState(() {
-                                  _pets[index] = updatedPet;
-                                });
+                              if (updatedPet != null) {
+                                final result = updatedPet as Map;
+                                if (result['isDeleted'] == true) {
+                                  setState(() {
+                                    _pets.removeAt(index);
+                                  });
+                                } else if (result['pet'] != null) {
+                                  setState(() {
+                                    _pets[index] =
+                                        result['pet'] as PetModel;
+                                  });
+                                }
                               }
                             },
                             child: PetCard(
-                              key: ValueKey('${_pets[index].name}_${_pets[index].age}'),
-                              pet: _pets[index],
+                              key: ValueKey(
+                                  '${currentPet.name}_${currentPet.imagePath}_${currentPet.weight}'),
+                              pet: currentPet,
+                              berat: currentPet.weight ?? '- kg',
+                              jenisKelamin: currentPet.gender ?? 'Jantan',
+                              catatan: currentPet.specialNotes ?? '-',
+                              ras: currentPet.breed ?? '-',
+                              jenisHewan: currentPet.jenisHewan,
+                              onDelete: () {
+                                setState(() {
+                                  _pets.removeAt(index);
+                                });
+                              },
                             ),
                           );
                         },
                       ),
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 32),
             ],
           ),
         ),

@@ -3,21 +3,21 @@ class PetModel {
   final String age;
   final String imagePath;
   final bool isLocalFile;
-  
-  // Tambahkan field opsional ini agar bisa menampung data dinamis dari form
-  final String? breed;        // Untuk Ras / Jenis
-  final String? weight;       // Untuk Berat Badan
-  final String? gender;       // Untuk Jenis Kelamin
-  final String? specialNotes; // Untuk Catatan Medis
+  final String breed;
+  final String weight;
+  final String gender;
+  final String specialNotes;
+  final String jenisHewan; // ✅ field baru
 
   const PetModel({
     required this.name,
     required this.age,
     required this.imagePath,
     this.isLocalFile = false,
-    this.breed,
-    this.weight,
-    this.gender,
-    this.specialNotes,
+    this.breed = '-',
+    this.weight = '-',
+    this.gender = 'Jantan',
+    this.specialNotes = '-',
+    this.jenisHewan = 'Anjing', // ✅ default Anjing
   });
 }

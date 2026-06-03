@@ -75,7 +75,7 @@ class LocationScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               const Text(
-                'SobaAnabul',
+                'SobatAnabul',
                 style: TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w900,

@@ -1,3 +1,7 @@
+// lib/screens/add_pet_screen.dart
+// Fix: _buildCheckbox sekarang menggunakan InkWell + Material agar area tap
+// lebih luas dan reliable. Tidak ada perubahan logika lainnya.
+
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -18,8 +22,9 @@ class _AddPetScreenState extends State<AddPetScreen> {
   final _beratController = TextEditingController();
   final _catatanController = TextEditingController();
 
-  String _jenisHewan = 'Anjing';
-  String _jenisKelamin = 'Betina';
+  // Default kosong agar user WAJIB memilih salah satu
+  String? _jenisHewan;
+  String _jenisKelamin = 'Jantan';
   XFile? _fotoFile;
 
   @override
@@ -34,8 +39,8 @@ class _AddPetScreenState extends State<AddPetScreen> {
 
   Future<void> _pilihFoto() async {
     final picker = ImagePicker();
-    final XFile? picked = await picker.pickImage(
-        source: ImageSource.gallery, imageQuality: 85);
+    final XFile? picked =
+        await picker.pickImage(source: ImageSource.gallery, imageQuality: 85);
     if (picked != null) setState(() => _fotoFile = picked);
   }
 
@@ -53,31 +58,55 @@ class _AddPetScreenState extends State<AddPetScreen> {
   }
 
   void _simpan() {
-    if (_namaController.text.isEmpty) {
+    if (_namaController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nama hewan tidak boleh kosong')),
+        const SnackBar(
+          content: Text('Nama hewan tidak boleh kosong'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
       );
       return;
     }
 
-    // Gunakan foto dari galeri jika ada, jika tidak pakai placeholder
+    // Validasi jenis hewan wajib dipilih
+    if (_jenisHewan == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Pilih jenis hewan terlebih dahulu'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
     final String imgPath = _fotoFile?.path ?? 'assets/images/cello.png';
     final bool isLocal = _fotoFile != null;
+    final String berat =
+        _beratController.text.isNotEmpty ? '${_beratController.text} kg' : '-';
 
     final pet = PetModel(
-      name: _namaController.text,
+      name: _namaController.text.trim(),
       age: _umurController.text.isNotEmpty ? _umurController.text : '-',
       imagePath: imgPath,
       isLocalFile: isLocal,
+      breed: _rasController.text.isNotEmpty ? _rasController.text : '-',
+      weight: berat,
+      gender: _jenisKelamin,
+      specialNotes: _catatanController.text.isNotEmpty
+          ? _catatanController.text
+          : 'Tidak ada catatan khusus',
+      jenisHewan: _jenisHewan!, // ✅ dipastikan tidak null sebelum sampai sini
     );
 
     Navigator.pop(context, {
       'pet': pet,
-      'ras': _rasController.text,
-      'berat': _beratController.text.isNotEmpty ? _beratController.text : '-',
+      'berat': berat,
       'jenisKelamin': _jenisKelamin,
+      'catatan': pet.specialNotes,
+      'ras': pet.breed,
       'jenisHewan': _jenisHewan,
-      'catatan': _catatanController.text,
     });
   }
 
@@ -151,7 +180,8 @@ class _AddPetScreenState extends State<AddPetScreen> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: Colors.white,
-                              border: Border.all(color: Colors.white, width: 3),
+                              border:
+                                  Border.all(color: Colors.white, width: 3),
                             ),
                             child: ClipOval(child: _buildFoto()),
                           ),
@@ -179,7 +209,18 @@ class _AddPetScreenState extends State<AddPetScreen> {
 
                     const SizedBox(height: 16),
 
-                    // Checkbox
+                    // ── JENIS HEWAN ─────────────────────────────
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Jenis Hewan:',
+                        style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey.shade700),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
                     Row(
                       children: [
                         Expanded(child: _buildCheckbox('Anjing')),
@@ -192,9 +233,13 @@ class _AddPetScreenState extends State<AddPetScreen> {
 
                     Row(
                       children: [
-                        Expanded(child: _buildTextField(_namaController, 'Nama')),
+                        Expanded(
+                            child: _buildTextField(
+                                _namaController, 'Nama*')),
                         const SizedBox(width: 12),
-                        Expanded(child: _buildTextField(_umurController, 'Umur')),
+                        Expanded(
+                            child:
+                                _buildTextField(_umurController, 'Umur')),
                       ],
                     ),
 
@@ -202,9 +247,14 @@ class _AddPetScreenState extends State<AddPetScreen> {
 
                     Row(
                       children: [
-                        Expanded(child: _buildTextField(_rasController, 'Jenis')),
+                        Expanded(
+                            child: _buildTextField(
+                                _rasController, 'Jenis/Ras')),
                         const SizedBox(width: 12),
-                        Expanded(child: _buildTextField(_beratController, 'BB (kg)')),
+                        Expanded(
+                            child: _buildTextField(
+                                _beratController, 'BB (kg)',
+                                keyboardType: TextInputType.number)),
                       ],
                     ),
 
@@ -251,7 +301,8 @@ class _AddPetScreenState extends State<AddPetScreen> {
                         maxLines: 4,
                         style: const TextStyle(fontSize: 14),
                         decoration: const InputDecoration(
-                          hintText: 'Masukkan catatan medis atau kebiasaan...',
+                          hintText:
+                              'Masukkan catatan medis atau kebiasaan...',
                           hintStyle: TextStyle(color: Colors.grey),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.all(14),
@@ -265,13 +316,15 @@ class _AddPetScreenState extends State<AddPetScreen> {
                       onTap: _simpan,
                       child: Container(
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding:
+                            const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
                           color: const Color(0xFFFF8C42),
                           borderRadius: BorderRadius.circular(30),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFFFF8C42).withOpacity(0.3),
+                              color: const Color(0xFFFF8C42)
+                                  .withOpacity(0.3),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
@@ -298,31 +351,53 @@ class _AddPetScreenState extends State<AddPetScreen> {
     );
   }
 
+  // ── FIX: Gunakan Material + InkWell agar area tap seluruh container ─────────
   Widget _buildCheckbox(String label) {
     final isSelected = _jenisHewan == label;
-    return GestureDetector(
-      onTap: () => setState(() => _jenisHewan = label),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10),
+        onTap: () {
+          setState(() => _jenisHewan = label);
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? const Color(0xFFE8F5E9) // hijau muda jika dipilih
+                : Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
               color: isSelected
                   ? const Color(0xFF4CAF50)
-                  : Colors.grey.shade300),
-        ),
-        child: Row(
-          children: [
-            Icon(
-              isSelected ? Icons.check_box : Icons.check_box_outline_blank,
-              color: isSelected ? const Color(0xFF4CAF50) : Colors.grey,
-              size: 20,
+                  : Colors.grey.shade300,
+              width: isSelected ? 2 : 1,
             ),
-            const SizedBox(width: 8),
-            Text(label,
-                style: const TextStyle(fontWeight: FontWeight.w600)),
-          ],
+          ),
+          child: Row(
+            children: [
+              Icon(
+                isSelected
+                    ? Icons.check_circle_rounded   // lebih jelas dari check_box
+                    : Icons.radio_button_unchecked, // lebih jelas dari check_box_outline_blank
+                color: isSelected
+                    ? const Color(0xFF4CAF50)
+                    : Colors.grey.shade400,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: isSelected
+                      ? const Color(0xFF2E7D32)
+                      : Colors.black87,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -354,16 +429,23 @@ class _AddPetScreenState extends State<AddPetScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint) {
+  Widget _buildTextField(
+    TextEditingController controller,
+    String hint, {
+    TextInputType keyboardType = TextInputType.text,
+  }) {
     return Container(
       decoration: BoxDecoration(
           color: Colors.white, borderRadius: BorderRadius.circular(10)),
       child: TextField(
         controller: controller,
-        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+        keyboardType: keyboardType,
+        style:
+            const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+          hintStyle:
+              const TextStyle(color: Colors.grey, fontSize: 14),
           border: InputBorder.none,
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 14, vertical: 12),

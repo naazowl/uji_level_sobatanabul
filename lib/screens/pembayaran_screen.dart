@@ -1,3 +1,6 @@
+// lib/screens/pembayaran_screen.dart
+// Fix: tambahNotifikasi & tambahLaporan dipanggil saat pembayaran berhasil.
+
 import 'package:flutter/material.dart';
 import 'package:app1/models/riwayat_provider.dart';
 
@@ -39,9 +42,12 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
   }
 
   void _prosesPembayaranSelesai() {
-    // ── Simpan ke Riwayat ──────────────────────────────────
+    final now = DateTime.now();
+    final provider = RiwayatProvider();
+
+    // ── 1. Simpan ke Riwayat ──────────────────────────────
     final item = RiwayatItem(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: now.millisecondsSinceEpoch.toString(),
       petName: widget.petName,
       petType: widget.petType,
       startDate: widget.startDate,
@@ -50,21 +56,74 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
       selectedCategories: widget.selectedCategories,
       grandTotal: widget.grandTotal,
       metodePembayaran: _selectedMethod,
-      createdAt: DateTime.now(),
+      createdAt: now,
     );
-    RiwayatProvider().tambah(item);
+    provider.tambah(item);
 
-    // ── Dialog Sukses ──────────────────────────────────────
+    // ── 2. Tambah 5 Notifikasi Aktivitas (sesuai desain Figma) ───────────
+    final dateStr2 =
+        '${now.day.toString().padLeft(2, '0')}/'
+        '${now.month.toString().padLeft(2, '0')}/'
+        '${now.year.toString().substring(2)}';
+
+    final List<Map<String, String>> aktivitasNotif = [
+      {
+        'id': '${now.millisecondsSinceEpoch}_1',
+        'title': 'Hai ${widget.petName} Sudah Mandi!',
+        'time': '$dateStr2 08:00',
+      },
+      {
+        'id': '${now.millisecondsSinceEpoch}_2',
+        'title': 'Hai ${widget.petName} Sudah Makan!',
+        'time': '$dateStr2 09:00',
+      },
+      {
+        'id': '${now.millisecondsSinceEpoch}_3',
+        'title': 'Hai ${widget.petName} Sedang Bermain!',
+        'time': '$dateStr2 10:00',
+      },
+      {
+        'id': '${now.millisecondsSinceEpoch}_4',
+        'title': 'Hai ${widget.petName} Sedang Tidur!',
+        'time': '$dateStr2 12:00',
+      },
+      {
+        'id': '${now.millisecondsSinceEpoch}_5',
+        'title': 'Hai ${widget.petName} Sedang Jalan-Jalan!',
+        'time': '$dateStr2 16:00',
+      },
+    ];
+
+    for (final notif in aktivitasNotif) {
+      provider.tambahNotifikasi(notif);
+    }
+
+    // ── 3. Tambah Laporan Harian ──────────────────────────
+    final dateStr =
+        '${now.day.toString().padLeft(2, '0')}/'
+        '${now.month.toString().padLeft(2, '0')}/'
+        '${now.year.toString().substring(2)}';
+
+    provider.tambahLaporan({
+      'petName': widget.petName,
+      'date': dateStr,
+      'mood': 'Baik',
+      'activities': <String>[],
+    });
+
+    // ── 4. Dialog Sukses ──────────────────────────────────
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: const Row(
           children: [
             Icon(Icons.check_circle, color: Colors.green, size: 28),
             SizedBox(width: 10),
-            Text('Sukses!', style: TextStyle(fontWeight: FontWeight.w900)),
+            Text('Sukses!',
+                style: TextStyle(fontWeight: FontWeight.w900)),
           ],
         ),
         content: Text(
@@ -79,7 +138,8 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                 Navigator.of(context).popUntil((route) => route.isFirst),
             child: const Text('Kembali ke Beranda',
                 style: TextStyle(
-                    color: Color(0xFFFF8C42), fontWeight: FontWeight.w700)),
+                    color: Color(0xFFFF8C42),
+                    fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -106,7 +166,8 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
                     child: Container(
-                      width: 36, height: 36,
+                      width: 36,
+                      height: 36,
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.6),
                         shape: BoxShape.circle,
@@ -119,7 +180,8 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                     child: Center(
                       child: Text('Metode Pembayaran',
                           style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.w900)),
+                              fontSize: 20,
+                              fontWeight: FontWeight.w900)),
                     ),
                   ),
                   const SizedBox(width: 36),
@@ -155,7 +217,8 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                         const SizedBox(height: 4),
                         const Text('SobatAnabul Care',
                             style: TextStyle(
-                                fontWeight: FontWeight.w800, fontSize: 15)),
+                                fontWeight: FontWeight.w800,
+                                fontSize: 15)),
                         const SizedBox(height: 2),
                         Text(
                           '${widget.petName} · ${widget.totalDays} hari',
@@ -177,8 +240,8 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
             // ── METODE PEMBAYARAN ───────────────────────────
             Expanded(
               child: SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 20, vertical: 10),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -204,7 +267,8 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                         icon: Icons.payments_rounded,
                         color: Colors.green),
                     const SizedBox(height: 20),
-                    const Divider(color: Color(0xFFEEEEEE), thickness: 1),
+                    const Divider(
+                        color: Color(0xFFEEEEEE), thickness: 1),
                     const SizedBox(height: 10),
                     _buildDynamicPaymentArea(),
                   ],
@@ -225,7 +289,8 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                     borderRadius: BorderRadius.circular(30),
                     boxShadow: [
                       BoxShadow(
-                          color: const Color(0xFFFF8C42).withOpacity(0.35),
+                          color:
+                              const Color(0xFFFF8C42).withOpacity(0.35),
                           blurRadius: 12,
                           offset: const Offset(0, 4))
                     ],
@@ -249,11 +314,12 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
     );
   }
 
-  Widget _buildMethodTile(
-      {required String id,
-      required String title,
-      required IconData icon,
-      required Color color}) {
+  Widget _buildMethodTile({
+    required String id,
+    required String title,
+    required IconData icon,
+    required Color color,
+  }) {
     final isSelected = _selectedMethod == id;
     return GestureDetector(
       onTap: () => setState(() => _selectedMethod = id),
@@ -273,7 +339,8 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                  color: color.withOpacity(0.1), shape: BoxShape.circle),
+                  color: color.withOpacity(0.1),
+                  shape: BoxShape.circle),
               child: Icon(icon, color: color, size: 22),
             ),
             const SizedBox(width: 14),
@@ -282,8 +349,9 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                   style: TextStyle(
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
-                      color:
-                          isSelected ? Colors.black : Colors.black87)),
+                      color: isSelected
+                          ? Colors.black
+                          : Colors.black87)),
             ),
             Icon(
               isSelected
@@ -317,7 +385,8 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
               child: Column(
                 children: [
                   Container(
-                    width: 160, height: 160,
+                    width: 160,
+                    height: 160,
                     color: Colors.grey.shade100,
                     child: const Icon(Icons.qr_code_2_rounded,
                         size: 140, color: Colors.black87),
@@ -329,7 +398,8 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
                           fontWeight: FontWeight.w800,
                           letterSpacing: 0.5)),
                   const Text('NMID: ID10293847561',
-                      style: TextStyle(fontSize: 9, color: Colors.grey)),
+                      style:
+                          TextStyle(fontSize: 9, color: Colors.grey)),
                 ],
               ),
             ),
@@ -342,16 +412,20 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
         decoration: BoxDecoration(
             color: Colors.blue.withOpacity(0.05),
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Colors.blue.withOpacity(0.2))),
+            border:
+                Border.all(color: Colors.blue.withOpacity(0.2))),
         child: const Row(
           children: [
-            Icon(Icons.info_outline_rounded, color: Colors.blue, size: 20),
+            Icon(Icons.info_outline_rounded,
+                color: Colors.blue, size: 20),
             SizedBox(width: 10),
             Expanded(
               child: Text(
                 'Aplikasi SobatAnabul akan langsung menghubungkan Anda ke sistem Gojek untuk memotong saldo e-wallet.',
-                style:
-                    TextStyle(fontSize: 12, color: Colors.black87, height: 1.4),
+                style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.black87,
+                    height: 1.4),
               ),
             ),
           ],
@@ -363,16 +437,20 @@ class _PembayaranScreenState extends State<PembayaranScreen> {
         decoration: BoxDecoration(
             color: Colors.green.withOpacity(0.05),
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Colors.green.withOpacity(0.2))),
+            border:
+                Border.all(color: Colors.green.withOpacity(0.2))),
         child: const Row(
           children: [
-            Icon(Icons.storefront_rounded, color: Colors.green, size: 20),
+            Icon(Icons.storefront_rounded,
+                color: Colors.green, size: 20),
             SizedBox(width: 10),
             Expanded(
               child: Text(
                 'Lakukan Pembayaran tunai di meja kasir toko SobatAnabul saat mengantarkan peliharaan ke lokasi penitipan.',
-                style:
-                    TextStyle(fontSize: 12, color: Colors.black87, height: 1.4),
+                style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.black87,
+                    height: 1.4),
               ),
             ),
           ],

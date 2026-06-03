@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:app1/screens/home_screen.dart';
+import 'package:app1/screens/welcome_screen.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -20,19 +20,19 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _OnboardingData(
       title: 'SobatAnabul',
       subtitle: 'Titipkan hewan peliharaanmu\ndengan aman dan nyaman!',
-      imagePath: 'assets/images/onboarding1.png',
+      imagePath: 'assets/images/kucing_anjing.png',
       bgColor: Color(0xFFD6EFFA),
     ),
     _OnboardingData(
       title: 'Pantau Kapan Saja',
       subtitle: 'Dapatkan laporan harian\npeliharaanmu secara real-time.',
-      imagePath: 'assets/images/onboarding2.png',
+      imagePath: 'assets/images/anjing.png',
       bgColor: Color(0xFFE8F5E9),
     ),
     _OnboardingData(
       title: 'Perawatan Terbaik',
       subtitle: 'Anabulmu dirawat oleh\ntenaga berpengalaman.',
-      imagePath: 'assets/images/onboarding3.png',
+      imagePath: 'assets/images/kucing.png',
       bgColor: Color(0xFFFFF3E0),
     ),
   ];
@@ -48,12 +48,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  void _goToHome() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
-    );
-  }
+    void _goToHome() {
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+  );
+}
 
   @override
   void dispose() {

@@ -1,7 +1,10 @@
+// lib/screens/titip_screen.dart
+
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:app1/models/pet_model.dart';
+import 'package:app1/models/riwayat_provider.dart';
 import 'package:app1/screens/titip_calendar_screen.dart';
 
 class TitipScreen extends StatefulWidget {
@@ -49,11 +52,40 @@ class _TitipScreenState extends State<TitipScreen> {
       ),
     ).then((result) {
       if (result != null) {
+        // ── Catat waktu penitipan ────────────────────────────────────────────
+        final now = DateTime.now();
+        final provider = RiwayatProvider();
+
+        // Format tanggal: dd/MM/yy HH:mm
+        String _fmt(DateTime dt) =>
+            '${dt.day.toString().padLeft(2, '0')}/'
+            '${dt.month.toString().padLeft(2, '0')}/'
+            '${dt.year.toString().substring(2)} '
+            '${dt.hour.toString().padLeft(2, '0')}:'
+            '${dt.minute.toString().padLeft(2, '0')}';
+
+        // Tambah notifikasi
+        provider.tambahNotifikasi({
+          'id': now.millisecondsSinceEpoch.toString(),
+          'title': 'Hai, ${pet.name} berhasil dititipkan! 🎉',
+          'time': _fmt(now),
+        });
+
+        // Tambah laporan harian
+        provider.tambahLaporan({
+          'petName': pet.name,
+          'date':
+              '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year.toString().substring(2)}',
+          'mood': 'Baik',
+          'activities': <String>[],
+        });
+
+        // ── Dialog konfirmasi berhasil ────────────────────────────────────────
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24)),
             contentPadding: const EdgeInsets.all(24),
             content: Column(
               mainAxisSize: MainAxisSize.min,
@@ -126,7 +158,7 @@ class _TitipScreenState extends State<TitipScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // ── HEADER ────────────────────────────────────────
+            // ── HEADER ────────────────────────────────────────────────────────
             Container(
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
               decoration: const BoxDecoration(
@@ -188,14 +220,14 @@ class _TitipScreenState extends State<TitipScreen> {
               ),
             ),
 
-            // ── KONTEN ───────────────────────────────────────
+            // ── KONTEN ────────────────────────────────────────────────────────
             Expanded(
               child: widget.pets.isEmpty
                   ? _buildKosong(context)
                   : _buildPetGrid(),
             ),
 
-            // ── TOMBOL TITIP SEKARANG ─────────────────────────
+            // ── TOMBOL TITIP SEKARANG ──────────────────────────────────────────
             if (widget.pets.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
@@ -221,13 +253,14 @@ class _TitipScreenState extends State<TitipScreen> {
                           ],
                         ),
                       ),
-
                     GestureDetector(
-                      onTap: _selectedIndex != null ? _titipSekarang : null,
+                      onTap:
+                          _selectedIndex != null ? _titipSekarang : null,
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding:
+                            const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
                           color: _selectedIndex != null
                               ? const Color(0xFFFF8C42)
@@ -300,7 +333,8 @@ class _TitipScreenState extends State<TitipScreen> {
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFFFFF0E0) : Colors.white,
+                color:
+                    isSelected ? const Color(0xFFFFF0E0) : Colors.white,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: isSelected
@@ -343,7 +377,6 @@ class _TitipScreenState extends State<TitipScreen> {
                     )
                   else
                     const SizedBox(height: 8),
-
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 12, vertical: 6),
@@ -358,14 +391,12 @@ class _TitipScreenState extends State<TitipScreen> {
                       ),
                     ),
                   ),
-
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
                       child: _buildPetImage(pet),
                     ),
                   ),
-
                   Padding(
                     padding: const EdgeInsets.only(bottom: 10),
                     child: Container(
@@ -438,14 +469,15 @@ class _TitipScreenState extends State<TitipScreen> {
             GestureDetector(
               onTap: () => Navigator.pop(context),
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 28, vertical: 14),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFF8C42),
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFFF8C42).withValues(alpha: 0.3),
+                      color:
+                          const Color(0xFFFF8C42).withValues(alpha: 0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),

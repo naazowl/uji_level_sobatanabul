@@ -41,9 +41,9 @@ final Map<String, _PerawatanData> _dataMap = {
     deskripsi:
         'Kesehatan dan keamanan adalah prioritas utama kami. Kami melakukan pemantauan kondisi fisik harian, pengecekan kesehatan dasar, serta pemberian obat jika diperlukan.\n\nDengan sistem pengawasan 24 jam dan kesiapan penanganan darurat, hewanmu selalu dalam kondisi aman dan terjaga.',
     imagePaths: [
-      'assets/images/perawatan_kesehatan_1.jpg',
-      'assets/images/perawatan_kesehatan_2.jpg',
-      'assets/images/perawatan_kesehatan_3.jpg',
+      'assets/images/perawatan_kesehatan_1.jpeg',
+      'assets/images/perawatan_kesehatan_2.jpeg',
+      'assets/images/perawatan_kesehatan_3.jpeg',
     ],
   ),
   'Aktivitas & Kenyamanan': _PerawatanData(
@@ -53,9 +53,9 @@ final Map<String, _PerawatanData> _dataMap = {
     deskripsi:
         'Kami menyediakan berbagai aktivitas menyenangkan untuk menjaga kebahagiaan hewan. Mulai dari waktu bermain, jalan-jalan (untuk anjing), hingga stimulasi mental dengan mainan.\n\nDitambah dengan tempat istirahat yang nyaman dan interaksi hangat bersama caregiver, hewanmu akan merasa seperti di rumah sendiri.',
     imagePaths: [
-      'assets/images/perawatan_aktivitas_1.jpg',
-      'assets/images/perawatan_aktivitas_2.jpg',
-      'assets/images/perawatan_aktivitas_3.jpg',
+      'assets/images/perawatan_aktivitas_1.jpeg',
+      'assets/images/perawatan_aktivitas_2.jpeg',
+      'assets/images/perawatan_aktivitas_3.jpeg',
     ],
   ),
   'Perhatian Khusus': _PerawatanData(
@@ -65,9 +65,9 @@ final Map<String, _PerawatanData> _dataMap = {
     deskripsi:
         'Setiap hewan memiliki kebutuhan yang unik. Kami memberikan perhatian khusus untuk hewan lansia, hewan yang sedang sakit atau dalam masa pemulihan, serta hewan dengan tingkat kecemasan tertentu.\n\nDengan pengawasan ekstra dan perawatan yang disesuaikan, kami memastikan mereka mendapatkan perhatian terbaik.',
     imagePaths: [
-      'assets/images/perawatan_khusus_1.jpg',
-      'assets/images/perawatan_khusus_2.jpg',
-      'assets/images/perawatan_khusus_3.jpg',
+      'assets/images/perawatan_khusus_1.jpeg',
+      'assets/images/perawatan_khusus_2.jpeg',
+      'assets/images/perawatan_khusus_3.jpeg',
     ],
   ),
 };

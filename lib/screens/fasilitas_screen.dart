@@ -23,7 +23,7 @@ const List<_Fasilitas> _daftarFasilitas = [
   _Fasilitas(
     nama: 'Tempat Tidur Khusus',
     icon: '🛏️',
-    imagePath: 'assets/images/fasilitas_tidur_khusus.jpg',
+    imagePath: 'assets/images/fasilitas_tidur_khusus.webp',
     bgColor: Color(0xFFF0EBF8),
     accentColor: Color(0xFF7C5CBF),
     deskripsi:
@@ -32,7 +32,7 @@ const List<_Fasilitas> _daftarFasilitas = [
   _Fasilitas(
     nama: 'Tempat Tidur',
     icon: '😴',
-    imagePath: 'assets/images/fasilitas_tidur.jpg',
+    imagePath: 'assets/images/fasilitas_tidur.webp',
     bgColor: Color(0xFFFDE8D8),
     accentColor: Color(0xFFE8773A),
     deskripsi:
@@ -41,7 +41,7 @@ const List<_Fasilitas> _daftarFasilitas = [
   _Fasilitas(
     nama: 'Tempat Mandi',
     icon: '🛁',
-    imagePath: 'assets/images/fasilitas_mandi.jpg',
+    imagePath: 'assets/images/fasilitas_mandi.webp',
     bgColor: Color(0xFFD8EDF5),
     accentColor: Color(0xFF3A8EBF),
     deskripsi:
@@ -50,7 +50,7 @@ const List<_Fasilitas> _daftarFasilitas = [
   _Fasilitas(
     nama: 'Ruangan Perawatan',
     icon: '🏥',
-    imagePath: 'assets/images/fasilitas_perawatan.jpg',
+    imagePath: 'assets/images/fasilitas_perawatan.webp',
     bgColor: Color(0xFFD8F5E8),
     accentColor: Color(0xFF2E9E6B),
     deskripsi:
@@ -59,7 +59,7 @@ const List<_Fasilitas> _daftarFasilitas = [
   _Fasilitas(
     nama: 'Tempat Bermain',
     icon: '🎾',
-    imagePath: 'assets/images/fasilitas_bermain.jpg',
+    imagePath: 'assets/images/fasilitas_bermain.jpeg',
     bgColor: Color(0xFFFAF3D8),
     accentColor: Color(0xFFBF9A2E),
     deskripsi:
@@ -68,7 +68,7 @@ const List<_Fasilitas> _daftarFasilitas = [
   _Fasilitas(
     nama: 'Tempat Makan & Minum',
     icon: '🍽️',
-    imagePath: 'assets/images/fasilitas_makan.jpg',
+    imagePath: 'assets/images/fasilitas_makan.jpeg',
     bgColor: Color(0xFFFFEBEB),
     accentColor: Color(0xFFBF3A3A),
     deskripsi:

@@ -56,15 +56,16 @@ class HargaDetailScreen extends StatelessWidget {
     final data = _hargaDataMap[jenisHewan] ?? _hargaDataMap['Kucing']!;
 
     const Color teksUtamaPekat = Color(0xFF1A1A1A);  
-    const Color teksSubTegas = Color(0xFF555555);    
+    const Color teksSubTegas = Color(0xFF666666);    
+    final Color accentColor = data.jenisHewan == 'kucing' ? const Color(0xFFFF9F43) : const Color(0xFF2980B9);
 
     return Scaffold(
       backgroundColor: AppColors.bgLight,
       body: Stack(
         children: [
-          // Background Efek Gradasi Atas Pastel
+          // Background Efek Gradasi Atas Pastel Lebih Tebal
           Container(
-            height: MediaQuery.of(context).size.height * 0.35,
+            height: MediaQuery.of(context).size.height * 0.40,
             width: double.infinity,
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -110,7 +111,7 @@ class HargaDetailScreen extends StatelessWidget {
                       const Expanded(
                         child: Center(
                           child: Text(
-                            'Informasi',
+                            'Informasi Biaya',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w800,
@@ -129,135 +130,184 @@ class HargaDetailScreen extends StatelessWidget {
                 Expanded(
                   child: SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 120),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          data.assetIcon,
-                          style: const TextStyle(fontSize: 48),
+                        // Lingkaran Icon Hewan Gedhe
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: accentColor.withOpacity(0.2),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
+                              )
+                            ]
+                          ),
+                          child: Text(
+                            data.assetIcon,
+                            style: const TextStyle(fontSize: 54),
+                          ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 12),
                         Text(
-                          'Harga Per -1 hari ${data.jenisHewan}',
+                          'Tarif Penitipan ${jenisHewan}',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
                             color: teksUtamaPekat,
                             fontFamily: 'Nunito',
                           ),
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: 20),
 
-                        // KOTAK CARD UTAMA
+                        // KOTAK CARD UTAMA MODERN
                         Container(
                           width: double.infinity,
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                          padding: const EdgeInsets.all(20),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(24),
+                            borderRadius: BorderRadius.circular(30),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.02),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 30,
+                                offset: const Offset(0, 12),
                               )
                             ],
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // === SECTION 1: PENITIPAN ===
-                              const Text(
-                                'Penitipan',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: teksSubTegas, 
-                                  fontWeight: FontWeight.w600,
-                                  fontFamily: 'Nunito',
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                data.hargaPerHari,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w700,
-                                  color: teksUtamaPekat, 
-                                  fontFamily: 'Nunito',
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-
-                              const Text(
-                                'Tidak termasuk :',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: teksSubTegas, 
-                                  fontWeight: FontWeight.w800,
-                                  fontFamily: 'Nunito',
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              _buildBulletItem('Kesehatan & keamanan', textColor: teksSubTegas),
-                              _buildBulletItem('Aktivitas & kenyamanan', textColor: teksSubTegas),
-                              _buildBulletItem('Perhatian khusus sesuai kondisi hewan', textColor: teksSubTegas),
-                              const SizedBox(height: 16),
-
-                              // =========================================================
-                              // ─── 🛠️ SEGMEN DETAIL HARGA (DIHIMPIT ATAS BAWAH) ───
-                              // =========================================================
-                              const Divider(color: Color(0xFFDDDDDD), thickness: 1.2, height: 1),
-                              const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 12),
-                                child: Center(
-                                  child: Text(
-                                    'Detail Harga',
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w800,
-                                      color: teksUtamaPekat,
-                                      fontFamily: 'Nunito',
-                                    ),
+                              
+                              // === BIAYA UTAMA (HERO COMPONENT) ===
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    colors: [accentColor, accentColor.withOpacity(0.8)],
                                   ),
+                                  borderRadius: BorderRadius.circular(20),
                                 ),
-                              ),
-                              const Divider(color: Color(0xFFDDDDDD), thickness: 1.2, height: 1),
-                              // =========================================================
-
-                              const SizedBox(height: 20),
-                              _buildHargaRow('Kesehatan & keamanan', data.hargaKesehatan, titleColor: teksSubTegas, priceColor: teksUtamaPekat),
-                              const SizedBox(height: 16),
-                              _buildHargaRow('Aktivitas & kenyamanan', data.hargaAktivitas, titleColor: teksSubTegas, priceColor: teksUtamaPekat),
-                              const SizedBox(height: 16),
-                              _buildHargaRow('Perhatian khusus sesuai kondisi hewan', data.hargaPerhatianKhusus, titleColor: teksSubTegas, priceColor: teksUtamaPekat),
-                              const SizedBox(height: 20),
-
-                              // =========================================================
-                              // ─── 🛠️ SEGMEN CATATAN (DIHIMPIT ATAS BAWAH) ───
-                              // =========================================================
-                              const Divider(color: Color(0xFFDDDDDD), thickness: 1.2, height: 1),
-                              const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 12),
-                                child: Center(
-                                  child: Text(
-                                    'Catatan',
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w800,
-                                      color: teksUtamaPekat,
-                                      fontFamily: 'Nunito',
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: const [
+                                        Text(
+                                          'Biaya Dasar Penitipan',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.white70, 
+                                            fontWeight: FontWeight.w600,
+                                            fontFamily: 'Nunito',
+                                          ),
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          'Termasuk Kebutuhan Dasar',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.white70,
+                                            fontFamily: 'Nunito',
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
+                                    Text(
+                                      '${data.hargaPerHari}/Hari',
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w900,
+                                        color: Colors.white, 
+                                        fontFamily: 'Nunito',
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              const Divider(color: Color(0xFFDDDDDD), thickness: 1.2, height: 1),
-                              // =========================================================
+                              const SizedBox(height: 24),
 
+                              // === SECTION: TIDAK TERMASUK ===
+                              _buildSubHeader('Tidak Termasuk Layanan Khusus:'),
+                              const SizedBox(height: 12),
+                              _buildPengecualianItem('Kesehatan & keamanan medis ekstra'),
+                              _buildPengecualianItem('Aktivitas bermain & kenyamanan khusus'),
+                              _buildPengecualianItem('Perhatian intensif luar kondisi normal'),
+                              const SizedBox(height: 28),
+
+                              // === SECTION: DETAIL HARGA (MODEL GRID) ===
+                              _buildSubHeader('Rincian Tarif Tambahan Opsional'),
                               const SizedBox(height: 16),
-                              _buildBulletItem('Setiap tambah hari total biaya di (*) kali 2', textColor: teksUtamaPekat, isBold: true),
-                              _buildBulletItem('Setiap penitipan sudah termasuk kebutuhan dasar', textColor: teksUtamaPekat, isBold: true),
+                              
+                              // Row Grid Kolom Kiri Kanan biar keren
+                              Row(
+                                children: [
+                                  Expanded(child: _buildGridHargaCard('Medis & Aman', data.hargaKesehatan, Icons.health_and_safety_rounded, const Color(0xFFE1F5FE), const Color(0xFF0288D1))),
+                                  const SizedBox(width: 12),
+                                  Expanded(child: _buildGridHargaCard('Playtime', data.hargaAktivitas, Icons.pets_rounded, const Color(0xFFE8F5E9), const Color(0xFF388E3C))),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              _buildGridHargaCard(
+                                'Perhatian Khusus / Kondisi Tertentu', 
+                                data.hargaPerhatianKhusus, 
+                                Icons.star_rounded, 
+                                const Color(0xFFFFF3E0), 
+                                const Color(0xFFF57C00),
+                                isFullWidth: true
+                              ),
+                              const SizedBox(height: 28),
+
+                              // === SECTION: CATATAN TARIF ===
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFF9E6), 
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: const Color(0xFFFFEAA7), width: 1.5),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: const [
+                                        Icon(Icons.calculate_rounded, color: Color(0xFFD35400), size: 20),
+                                        SizedBox(width: 8),
+                                        Text(
+                                          'Sistem Kelipatan Biaya',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w800,
+                                            color: Color(0xFFD35400),
+                                            fontFamily: 'Nunito',
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 10),
+                                    const Text(
+                                      '• Setiap penambahan hari, seluruh total komponen biaya pilihan akan dikalikan sesuai jumlah hari menginap ( x2, x3, dst ).',
+                                      style: TextStyle(
+                                        fontSize: 12, 
+                                        color: Color(0xFF5E6A75), 
+                                        fontFamily: 'Nunito',
+                                        height: 1.4,
+                                        fontWeight: FontWeight.w600
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
                             ],
                           ),
                         ),
@@ -269,33 +319,41 @@ class HargaDetailScreen extends StatelessWidget {
             ),
           ),
 
-          // Tombol Navigasi Bulat Biru Gelap
+          // Tombol Aksi bawah yang menyatu dengan tema
           Positioned(
-            left: 0,
-            right: 0,
+            left: 24,
+            right: 24,
             bottom: 24,
-            child: Center(
-              child: GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: Container(
-                  width: 52,
-                  height: 52,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF1A3A5F),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF1A3A5F).withOpacity(0.3),
-                        blurRadius: 15,
-                        offset: const Offset(0, 6),
-                      )
-                    ],
+            child: Container(
+              height: 56,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF1A3A5F).withOpacity(0.3),
+                    blurRadius: 15,
+                    offset: const Offset(0, 8),
+                  )
+                ],
+              ),
+              child: ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF1A3A5F),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Icon(
-                    Icons.arrow_forward_rounded,
-                    color: Colors.white,
-                    size: 22,
-                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Text(
+                      'Paham, Lanjutkan',
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 16, fontFamily: 'Nunito'),
+                    ),
+                    SizedBox(width: 8),
+                    Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 20),
+                  ],
                 ),
               ),
             ),
@@ -305,28 +363,42 @@ class HargaDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBulletItem(String text, {required Color textColor, bool isBold = false}) {
+  // Helper Judul Bagian Dalam Card
+  Widget _buildSubHeader(String title) {
+    return Text(
+      title,
+      style: const TextStyle(
+        fontSize: 14,
+        color: Color(0xFF1A1A1A), 
+        fontWeight: FontWeight.w900,
+        fontFamily: 'Nunito',
+      ),
+    );
+  }
+
+  // Helper List Pengecualian dengan ikon silang merah estetik
+  Widget _buildPengecualianItem(String text) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '•  ',
-            style: TextStyle(
-              fontSize: 14,
-              color: textColor,
+          Container(
+            padding: const EdgeInsets.all(4),
+            decoration: const BoxDecoration(
+              color: Color(0xFFFFEBEE),
+              shape: BoxShape.circle,
             ),
+            child: const Icon(Icons.close_rounded, size: 12, color: Color(0xFFD32F2F)),
           ),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               text,
-              style: TextStyle(
-                fontSize: 12,
-                color: textColor,
+              style: const TextStyle(
+                fontSize: 13,
+                color: Color(0xFF555555),
                 fontFamily: 'Nunito',
-                fontWeight: isBold ? FontWeight.w600 : FontWeight.w500,
-                height: 1.3,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ),
@@ -335,40 +407,40 @@ class HargaDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHargaRow(String title, String price, {required Color titleColor, required Color priceColor}) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text('•  ', style: TextStyle(color: titleColor, fontSize: 14)),
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: titleColor,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: 'Nunito',
+  // Helper Desain Kartu Rincian Grid Berwarna Cantik
+  Widget _buildGridHargaCard(String title, String price, IconData icon, Color bgColor, Color iconColor, {bool isFullWidth = false}) {
+    return Container(
+      width: isFullWidth ? double.infinity : null,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: iconColor, size: 24),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black54, fontFamily: 'Nunito'),
                 ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Padding(
-          padding: const EdgeInsets.only(left: 14),
-          child: Text(
-            price,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700, 
-              color: priceColor,
-              fontFamily: 'Nunito',
+                const SizedBox(height: 2),
+                Text(
+                  price,
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900, color: iconColor, fontFamily: 'Nunito'),
+                ),
+              ],
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

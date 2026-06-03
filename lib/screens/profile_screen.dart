@@ -47,7 +47,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _namaController = TextEditingController(text: widget.nama);
     _emailController = TextEditingController(text: widget.email);
     _usernameController = TextEditingController(text: widget.username);
-    _alamatController = TextEditingController(text: widget.alamat);
     _teleponController = TextEditingController(text: widget.telepon);
   }
 
@@ -56,7 +55,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _namaController.dispose();
     _emailController.dispose();
     _usernameController.dispose();
-    _alamatController.dispose();
     _teleponController.dispose();
     super.dispose();
   }
@@ -266,8 +264,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             keyboardType: TextInputType.emailAddress),
                         const SizedBox(height: 20),
                         _buildField('Nama Pengguna', _usernameController),
-                        const SizedBox(height: 20),
-                        _buildField('Alamat', _alamatController),
                         const SizedBox(height: 20),
                         _buildField('Nomor Telepon', _teleponController,
                             keyboardType: TextInputType.phone),

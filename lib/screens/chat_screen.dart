@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'calling_screen.dart'; // Memastikan file CallingScreen terhubung
+import 'calling_screen.dart';
 
 class ChatMessage {
   final String text;
@@ -14,7 +14,7 @@ class ChatMessage {
 }
 
 class ChatScreen extends StatefulWidget {
-  // Menampung list global yang dikirim dan dijaga oleh Homepage
+  // ✅ List ini sekarang dipegang oleh HomeScreen (persistent)
   final List<ChatMessage> messages;
 
   const ChatScreen({super.key, required this.messages});
@@ -27,27 +27,25 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  // Nomor HP dinamis Admin SobatAnabul
-  final String _adminPhone = '081234567890'; 
+  final String _adminPhone = '081234567890';
 
   @override
   void initState() {
     super.initState();
-    
-    // Jika riwayat pesan dari Homepage masih kosong (baru pertama kali buka chat)
-    // otomatis tambahkan pesan sambutan dari Admin agar data tidak kosongan
+
+    // Tambah pesan sambutan hanya jika belum pernah ada pesan sama sekali
     if (widget.messages.isEmpty) {
       widget.messages.add(
         ChatMessage(
-          text: 'Halo, Kak! Selamat datang di Sobat Anabul 🐾. Admin kami akan segera membalas pesan Kakak. Ada yang bisa kami bantu?',
+          text:
+              'Halo, Kak! Selamat datang di Sobat Anabul 🐾. Admin kami akan segera membalas pesan Kakak. Ada yang bisa kami bantu?',
           isFromAdmin: true,
           time: _currentTime(),
         ),
       );
     }
 
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => _scrollToBottom());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
   }
 
   @override
@@ -79,7 +77,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (text.isEmpty) return;
 
     setState(() {
-      // Langsung dimasukkan ke list widget.messages agar tersimpan di list aslinya Homepage
+      // ✅ Langsung add ke widget.messages — tersimpan di HomeScreen
       widget.messages.add(ChatMessage(
         text: text,
         isFromAdmin: false,
@@ -92,7 +90,6 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _hapusBubble(int index) {
-    // Jangan hapus pesan sambutan admin pertama (index 0)
     if (index == 0 && widget.messages[0].isFromAdmin) return;
     setState(() => widget.messages.removeAt(index));
   }
@@ -151,7 +148,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         ],
                       ),
                     ),
-                    
+
                     // ── TOMBOL CALL ──
                     GestureDetector(
                       onTap: () {
@@ -208,7 +205,8 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
                         );
                       }
-                      return _buildBubble(widget.messages[index - 1], index - 1);
+                      return _buildBubble(
+                          widget.messages[index - 1], index - 1);
                     },
                   ),
           ),
@@ -232,8 +230,8 @@ class _ChatScreenState extends State<ChatScreen> {
                       style: const TextStyle(fontSize: 14),
                       decoration: const InputDecoration(
                         hintText: 'Ketik Pesan Anda..',
-                        hintStyle: TextStyle(
-                            color: Colors.grey, fontSize: 14),
+                        hintStyle:
+                            TextStyle(color: Colors.grey, fontSize: 14),
                         border: InputBorder.none,
                         contentPadding:
                             EdgeInsets.symmetric(vertical: 12),
@@ -273,15 +271,15 @@ class _ChatScreenState extends State<ChatScreen> {
         onLongPress: isFirstAdmin ? null : () => _konfirmasiHapus(index),
         child: Container(
           margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.symmetric(
-              horizontal: 16, vertical: 12),
+          padding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.72,
           ),
           decoration: BoxDecoration(
             color: isAdmin
-                ? const Color(0xFFEEEEEE) // Abu-abu untuk Admin
-                : const Color(0xFFD6EFFA), // Biru muda untuk User
+                ? const Color(0xFFEEEEEE)
+                : const Color(0xFFD6EFFA),
             borderRadius: BorderRadius.only(
               topLeft: const Radius.circular(18),
               topRight: const Radius.circular(18),
@@ -292,9 +290,7 @@ class _ChatScreenState extends State<ChatScreen> {
           child: Text(
             msg.text,
             style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black87,
-                height: 1.4),
+                fontSize: 14, color: Colors.black87, height: 1.4),
           ),
         ),
       ),
@@ -313,8 +309,8 @@ class _ChatScreenState extends State<ChatScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Batal',
-                style: TextStyle(color: Colors.grey)),
+            child:
+                const Text('Batal', style: TextStyle(color: Colors.grey)),
           ),
           TextButton(
             onPressed: () {
@@ -323,8 +319,7 @@ class _ChatScreenState extends State<ChatScreen> {
             },
             child: const Text('Hapus',
                 style: TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.w700)),
+                    color: Colors.red, fontWeight: FontWeight.w700)),
           ),
         ],
       ),

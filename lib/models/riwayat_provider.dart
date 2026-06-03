@@ -44,6 +44,7 @@ class RiwayatProvider {
   factory RiwayatProvider() => _instance;
   RiwayatProvider._internal();
 
+  // ── RIWAYAT TITIPAN ──────────────────────────────────────────────────────────
   final List<RiwayatItem> _items = [];
 
   List<RiwayatItem> get items =>
@@ -52,4 +53,33 @@ class RiwayatProvider {
   void tambah(RiwayatItem item) => _items.add(item);
   void hapus(String id) => _items.removeWhere((e) => e.id == id);
   void hapusSemua() => _items.clear();
+
+  // ── NOTIFIKASI ───────────────────────────────────────────────────────────────
+  final List<Map<String, String>> _notifications = [];
+
+  /// Mengembalikan daftar notifikasi terbaru di urutan paling atas.
+  List<Map<String, String>> get notifications =>
+      List.unmodifiable(_notifications.reversed.toList());
+
+  /// Tambah satu notifikasi baru.
+  void tambahNotifikasi(Map<String, String> notif) =>
+      _notifications.add(notif);
+
+  /// Hapus notifikasi berdasarkan id.
+  void hapusNotifikasi(String id) =>
+      _notifications.removeWhere((e) => e['id'] == id);
+
+  /// Hapus semua notifikasi sekaligus.
+  void hapusSemuaNotifikasi() => _notifications.clear();
+
+  // ── LAPORAN HARIAN ───────────────────────────────────────────────────────────
+  final List<Map<String, dynamic>> _laporanList = [];
+
+  /// Mengembalikan daftar laporan, terbaru di urutan paling atas.
+  List<Map<String, dynamic>> get laporanList =>
+      List.unmodifiable(_laporanList.reversed.toList());
+
+  /// Tambah laporan harian baru ketika penitipan berhasil dibuat.
+  void tambahLaporan(Map<String, dynamic> laporan) =>
+      _laporanList.add(laporan);
 }

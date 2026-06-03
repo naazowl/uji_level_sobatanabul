@@ -1,5 +1,8 @@
+// lib/screens/notification_screen.dart
+
 import 'package:flutter/material.dart';
-import 'laporan_harian_screen.dart'; // Memastikan halaman laporan harian terhubung
+import 'package:app1/models/riwayat_provider.dart';
+import 'laporan_harian_screen.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -11,38 +14,12 @@ class NotificationScreen extends StatefulWidget {
 class _NotificationScreenState extends State<NotificationScreen> {
   bool _isExpanded = false;
 
-  // Mengubah menjadi list biasa (bukan final) agar datanya bisa dihapus secara dinamis
-  List<Map<String, String>> _allNotifications = [
-    {
-      'id': '1',
-      'title': 'Hai Naresa, Celli Sedang Jalan-Jalan!',
-      'time': '05/05/26 16:00'
-    },
-    {
-      'id': '2',
-      'title': 'Hai Naresa, Celli Sedang Tidur!',
-      'time': '05/05/26 12:00'
-    },
-    {
-      'id': '3',
-      'title': 'Hai Naresa, Celli Sedang Bermain!',
-      'time': '05/05/26 10:00'
-    },
-    {
-      'id': '4',
-      'title': 'Hai Naresa, Celli Sudah Makan!',
-      'time': '05/05/26 09:00'
-    },
-    {
-      'id': '5',
-      'title': 'Hai Naresa, Celli Sudah Mandi!',
-      'time': '05/05/26 08:00'
-    },
-  ];
+  // Ambil data LANGSUNG dari singleton RiwayatProvider — tidak ada hardcode.
+  List<Map<String, String>> get _allNotifications =>
+      RiwayatProvider().notifications.cast<Map<String, String>>();
 
   @override
   Widget build(BuildContext context) {
-    // Membatasi jumlah tampilan notifikasi berdasarkan status expand
     final displayedNotifications =
         _isExpanded ? _allNotifications : _allNotifications.take(3).toList();
 
@@ -53,9 +30,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
           children: [
             const SizedBox(height: 20),
 
-            // ── TOP BAR (Back Button, Judul & Tombol Bersihkan) ───────────────────────
+            // ── TOP BAR ──────────────────────────────────────────────────────────
             Padding(
-              padding: const EdgeInsets.only(left: 24, right: 24, top: 8, bottom: 24),
+              padding:
+                  const EdgeInsets.only(left: 24, right: 24, top: 8, bottom: 24),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -80,13 +58,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
                       ),
                     ],
                   ),
-                  // Tombol cepat hapus semua jika notifikasi kepenuhan
+                  // Tombol hapus semua — hanya muncul jika ada notifikasi
                   if (_allNotifications.isNotEmpty)
                     GestureDetector(
                       onTap: () {
-                        setState(() {
-                          _allNotifications.clear();
-                        });
+                        RiwayatProvider().hapusSemuaNotifikasi();
+                        setState(() {});
                       },
                       child: const Text(
                         'Hapus Semua',
@@ -101,26 +78,23 @@ class _NotificationScreenState extends State<NotificationScreen> {
               ),
             ),
 
-            // ── AREA DAFTAR NOTIFIKASI / KONDISI KOSONG ────────────────────────
+            // ── DAFTAR NOTIFIKASI / EMPTY STATE ─────────────────────────────────
             Expanded(
               child: _allNotifications.isEmpty
-                  ? _buildEmptyState() // Tampilan interaktif jika semua sudah dihapus
+                  ? _buildEmptyState()
                   : SingleChildScrollView(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Column(
                         children: [
-                          // Loop data notifikasi menggunakan Dismissible
                           ...displayedNotifications.map((notif) {
                             return Dismissible(
                               key: Key(notif['id']!),
-                              direction: DismissDirection.endToStart, // Geser ke kiri untuk hapus
+                              direction: DismissDirection.endToStart,
                               background: _buildDismissBackground(),
                               onDismissed: (direction) {
-                                setState(() {
-                                  _allNotifications.removeWhere((item) => item['id'] == notif['id']);
-                                });
-                                
-                                // Memunculkan feedback SnackBar kecil di bawah
+                                RiwayatProvider()
+                                    .hapusNotifikasi(notif['id']!);
+                                setState(() {});
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('Notifikasi dihapus'),
@@ -133,7 +107,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => const LaporanHarianScreen(),
+                                      builder: (context) =>
+                                          const LaporanHarianScreen(),
                                     ),
                                   );
                                 },
@@ -147,7 +122,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
                           const SizedBox(height: 12),
 
-                          // Tombol panah expand tampil hanya jika total item > 3
+                          // Tombol expand — hanya tampil jika item > 3
                           if (_allNotifications.length > 3)
                             GestureDetector(
                               onTap: () {
@@ -156,7 +131,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                 });
                               },
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8.0),
                                 child: Icon(
                                   _isExpanded
                                       ? Icons.keyboard_arrow_up_rounded
@@ -177,7 +153,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 
-  // Desain background merah saat card notifikasi di-swipe ke samping kiri
   Widget _buildDismissBackground() {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -195,7 +170,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 
-  // Tampilan estetik pengganti agar tidak kosong melompong saat data habis
   Widget _buildEmptyState() {
     return Center(
       child: Column(
@@ -225,14 +199,15 @@ class _NotificationScreenState extends State<NotificationScreen> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Aktivitas terbaru anabulmu akan muncul di sini.',
+            'Notifikasi akan muncul setelah penitipan dilakukan.',
+            textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w400,
               color: Colors.grey.shade400,
             ),
           ),
-          const SizedBox(height: 80), // Menjaga posisi seimbang di tengah screen
+          const SizedBox(height: 80),
         ],
       ),
     );

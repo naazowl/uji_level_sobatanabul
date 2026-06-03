@@ -1,4 +1,7 @@
+// lib/screens/laporan_harian_screen.dart
+
 import 'package:flutter/material.dart';
+import 'package:app1/models/riwayat_provider.dart';
 
 class LaporanHarianScreen extends StatefulWidget {
   const LaporanHarianScreen({Key? key}) : super(key: key);
@@ -8,10 +11,7 @@ class LaporanHarianScreen extends StatefulWidget {
 }
 
 class _LaporanHarianScreenState extends State<LaporanHarianScreen> {
-  final String date = "05/05/26";
-  final String mood = "Baik";
-
-  /// Jalur asset gambar lokal.
+  /// Jalur asset gambar lokal (tetap sama, untuk laporan yang sudah ada).
   final List<Map<String, String>> localPhotos = [
     {'assetPath': 'assets/images/mandi.jpg', 'title': 'Mandi 08:00'},
     {'assetPath': 'assets/images/makan.jpg', 'title': 'Makan 09:00'},
@@ -20,24 +20,36 @@ class _LaporanHarianScreenState extends State<LaporanHarianScreen> {
     {'assetPath': 'assets/images/jalan.jpg', 'title': 'Jalan Sore 16:00'},
   ];
 
-  // List checklist kegiatan dengan kombinasi palet warna pastel aesthetic
   final List<Map<String, dynamic>> activities = [
-    {'name': 'Mandi', 'color': const Color(0xFFFFB3B3)},       // Soft Pastel Pink Red
-    {'name': 'Makan', 'color': const Color(0xFFE1BEE7)},       // Soft Pastel Light Purple
-    {'name': 'Bermain', 'color': const Color(0xFFC8E6C9)},     // Soft Pastel Mint Green
-    {'name': 'Tidur Siang', 'color': const Color(0xFFFFE0B2)}, // Soft Pastel Apricot Orange
-    {'name': 'Jalan Sore', 'color': const Color(0xFFFFF9C4)},  // Soft Pastel Cream Yellow
+    {'name': 'Mandi', 'color': const Color(0xFFFFB3B3)},
+    {'name': 'Makan', 'color': const Color(0xFFE1BEE7)},
+    {'name': 'Bermain', 'color': const Color(0xFFC8E6C9)},
+    {'name': 'Tidur Siang', 'color': const Color(0xFFFFE0B2)},
+    {'name': 'Jalan Sore', 'color': const Color(0xFFFFF9C4)},
   ];
 
   @override
   Widget build(BuildContext context) {
-    // Token warna tema utama untuk kesan UI premium & bersih
     const Color aestheticDarkText = Color(0xFF1E293B);
     const Color aestheticBlueAccent = Color(0xFF4F93E3);
     const Color subTextColor = Color(0xFF64748B);
 
+    // ── CEK APAKAH ADA PENITIPAN ─────────────────────────────────────────────
+    final laporanList = RiwayatProvider().laporanList;
+
+    if (laporanList.isEmpty) {
+      return _buildEmptyLaporan(context, aestheticDarkText);
+    }
+
+    // Ambil laporan terbaru
+    final latest = laporanList.first;
+    final String petName = latest['petName'] ?? '';
+    final String date = latest['date'] ?? '-';
+    final String mood = latest['mood'] ?? 'Baik';
+
+    // ── LAPORAN NORMAL ───────────────────────────────────────────────────────
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC), // Slate super light background
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: const Color(0xFFF8FAFC),
         elevation: 0,
@@ -45,16 +57,17 @@ class _LaporanHarianScreenState extends State<LaporanHarianScreen> {
         leading: Padding(
           padding: const EdgeInsets.only(left: 12),
           child: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: aestheticDarkText, size: 18),
+            icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                color: aestheticDarkText, size: 18),
             onPressed: () => Navigator.pop(context),
           ),
         ),
         title: const Text(
           'Laporan Harian',
           style: TextStyle(
-            color: aestheticDarkText, 
-            fontWeight: FontWeight.w800, 
-            fontSize: 22, 
+            color: aestheticDarkText,
+            fontWeight: FontWeight.w800,
+            fontSize: 22,
             fontFamily: 'Nunito',
             letterSpacing: -0.5,
           ),
@@ -66,7 +79,7 @@ class _LaporanHarianScreenState extends State<LaporanHarianScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // ── HEADER SECTION: Tanggal & Mood Chip ──
+            // ── HEADER: Nama Hewan, Tanggal & Mood ──────────────────────────
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
               child: Row(
@@ -75,9 +88,9 @@ class _LaporanHarianScreenState extends State<LaporanHarianScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Hari Ini',
-                        style: TextStyle(
+                      Text(
+                        petName.isNotEmpty ? petName : 'Hari Ini',
+                        style: const TextStyle(
                           color: subTextColor,
                           fontSize: 14,
                           fontFamily: 'Nunito',
@@ -95,17 +108,20 @@ class _LaporanHarianScreenState extends State<LaporanHarianScreen> {
                       ),
                     ],
                   ),
-                  // Mood Chip Badge Modern
+                  // Mood Badge
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE0F2FE), // Soft light blue bg
+                      color: const Color(0xFFE0F2FE),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFBAE6FD), width: 1),
+                      border: Border.all(
+                          color: const Color(0xFFBAE6FD), width: 1),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.wb_sunny_rounded, color: aestheticBlueAccent, size: 16),
+                        const Icon(Icons.wb_sunny_rounded,
+                            color: aestheticBlueAccent, size: 16),
                         const SizedBox(width: 6),
                         Text(
                           'Mood: $mood',
@@ -125,9 +141,9 @@ class _LaporanHarianScreenState extends State<LaporanHarianScreen> {
 
             const SizedBox(height: 16),
 
-            // ── HORIZONTAL SLIDER FOTO KUCING ──
+            // ── SLIDER FOTO ──────────────────────────────────────────────────
             SizedBox(
-              height: 290, 
+              height: 290,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 physics: const BouncingScrollPhysics(),
@@ -140,7 +156,6 @@ class _LaporanHarianScreenState extends State<LaporanHarianScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Pembungkus Foto dengan Shadow Halus Premium
                         Expanded(
                           child: Container(
                             decoration: BoxDecoration(
@@ -148,7 +163,8 @@ class _LaporanHarianScreenState extends State<LaporanHarianScreen> {
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF0F172A).withOpacity(0.04),
+                                  color: const Color(0xFF0F172A)
+                                      .withOpacity(0.04),
                                   blurRadius: 12,
                                   offset: const Offset(0, 6),
                                 )
@@ -165,16 +181,19 @@ class _LaporanHarianScreenState extends State<LaporanHarianScreen> {
                                     color: const Color(0xFFF1F5F9),
                                     padding: const EdgeInsets.all(16),
                                     child: Column(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
-                                        Icon(Icons.insert_photo_outlined, color: Colors.grey[400], size: 32),
+                                        Icon(Icons.insert_photo_outlined,
+                                            color: Colors.grey[400],
+                                            size: 32),
                                         const SizedBox(height: 8),
                                         Text(
                                           'Taruh gambar di:\n${localPhotos[index]['assetPath']}',
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
-                                            color: Colors.grey[500], 
-                                            fontSize: 10, 
+                                            color: Colors.grey[500],
+                                            fontSize: 10,
                                             fontFamily: 'Nunito',
                                           ),
                                         ),
@@ -187,14 +206,13 @@ class _LaporanHarianScreenState extends State<LaporanHarianScreen> {
                           ),
                         ),
                         const SizedBox(height: 10),
-                        // Keterangan Teks Kegiatan di bawah masing-masing foto
                         Padding(
                           padding: const EdgeInsets.only(left: 4),
                           child: Text(
                             localPhotos[index]['title']!,
                             style: const TextStyle(
-                              fontWeight: FontWeight.w700, 
-                              fontSize: 14, 
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
                               color: aestheticDarkText,
                               fontFamily: 'Nunito',
                             ),
@@ -209,7 +227,7 @@ class _LaporanHarianScreenState extends State<LaporanHarianScreen> {
 
             const SizedBox(height: 32),
 
-            // ── SECTION BAWAH: KEGIATAN HARI INI ──
+            // ── AKTIVITAS TERPENUHI ──────────────────────────────────────────
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
@@ -229,9 +247,9 @@ class _LaporanHarianScreenState extends State<LaporanHarianScreen> {
                       const Text(
                         'Aktivitas Terpenuhi',
                         style: TextStyle(
-                          fontSize: 18, 
-                          fontWeight: FontWeight.w800, 
-                          color: aestheticDarkText, 
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: aestheticDarkText,
                           fontFamily: 'Nunito',
                           letterSpacing: -0.3,
                         ),
@@ -239,8 +257,6 @@ class _LaporanHarianScreenState extends State<LaporanHarianScreen> {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  
-                  // Grid/List List Kegiatan dengan Box Container yang Penuh & Cantik
                   ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -253,7 +269,8 @@ class _LaporanHarianScreenState extends State<LaporanHarianScreen> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFFF1F5F9), width: 1),
+                          border: Border.all(
+                              color: const Color(0xFFF1F5F9), width: 1),
                           boxShadow: [
                             BoxShadow(
                               color: const Color(0xFF0F172A).withOpacity(0.02),
@@ -264,35 +281,34 @@ class _LaporanHarianScreenState extends State<LaporanHarianScreen> {
                         ),
                         child: Row(
                           children: [
-                            // Bulatan Indikator Checklist Cantik
                             Container(
                               width: 28,
                               height: 28,
                               decoration: BoxDecoration(
-                                color: activities[index]['color'].withOpacity(0.2),
+                                color: (activities[index]['color'] as Color)
+                                    .withOpacity(0.2),
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
                                 child: Icon(
                                   Icons.check_circle_rounded,
                                   size: 20,
-                                  color: activities[index]['color'],
+                                  color:
+                                      activities[index]['color'] as Color,
                                 ),
                               ),
                             ),
                             const SizedBox(width: 14),
-                            // Nama Kegiatan
                             Text(
-                              activities[index]['name'],
+                              activities[index]['name'] as String,
                               style: const TextStyle(
-                                fontSize: 15, 
-                                fontWeight: FontWeight.w700, 
+                                fontSize: 15,
+                                fontWeight: FontWeight.w700,
                                 fontFamily: 'Nunito',
                                 color: aestheticDarkText,
                               ),
                             ),
                             const Spacer(),
-                            // Badge Penanda Waktu / Status Tambahan
                             Text(
                               'Selesai',
                               style: TextStyle(
@@ -307,11 +323,88 @@ class _LaporanHarianScreenState extends State<LaporanHarianScreen> {
                       );
                     },
                   ),
-                  const SizedBox(height: 32), // Padding bawah agar scroll terasa lega
+                  const SizedBox(height: 32),
                 ],
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  // ── HALAMAN KOSONG SEBELUM ADA PENITIPAN ──────────────────────────────────
+  Widget _buildEmptyLaporan(
+      BuildContext context, Color aestheticDarkText) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF8FAFC),
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: IconButton(
+            icon: Icon(Icons.arrow_back_ios_new_rounded,
+                color: aestheticDarkText, size: 18),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+        title: Text(
+          'Laporan Harian',
+          style: TextStyle(
+            color: aestheticDarkText,
+            fontWeight: FontWeight.w800,
+            fontSize: 22,
+            fontFamily: 'Nunito',
+            letterSpacing: -0.5,
+          ),
+        ),
+        centerTitle: false,
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 40),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                width: 90,
+                height: 90,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEFF6FF),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.assignment_outlined,
+                  size: 44,
+                  color: Color(0xFF93C5FD),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text(
+                'Belum Ada Laporan',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                  color: aestheticDarkText,
+                  fontFamily: 'Nunito',
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Laporan harian akan otomatis muncul setelah kamu melakukan penitipan.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey.shade500,
+                  height: 1.5,
+                  fontFamily: 'Nunito',
+                ),
+              ),
+              const SizedBox(height: 80),
+            ],
+          ),
         ),
       ),
     );

@@ -55,7 +55,7 @@ class _EditPetScreenState extends State<EditPetScreen> {
     _namaController = TextEditingController(text: widget.nama.isNotEmpty ? widget.nama : widget.pet.name);
     _umurController = TextEditingController(text: widget.umur.isNotEmpty ? widget.umur : widget.pet.age);
     _rasController = TextEditingController(text: widget.ras.isNotEmpty ? widget.ras : (widget.pet.breed ?? '-'));
-    _beratController = TextEditingController(text: widget.berat.isNotEmpty ? widget.berat : (widget.pet.weight ?? '30 kg'));
+    _beratController = TextEditingController(text: widget.berat.isNotEmpty ? widget.berat : (widget.pet.weight ?? '30'));
     _catatanController = TextEditingController(text: widget.catatan.isNotEmpty ? widget.catatan : (widget.pet.specialNotes ?? ''));
     
     _jenisKelamin = widget.jenisKelamin.isNotEmpty ? widget.jenisKelamin : (widget.pet.gender ?? 'Jantan');
@@ -104,7 +104,7 @@ class _EditPetScreenState extends State<EditPetScreen> {
       widget.pet.imagePath,
       fit: BoxFit.cover,
       width: 90, height: 90,
-      errorBuilder: (_, __, ___) => const Icon(Icons.pets, size: 40, color: Color(0xFF2B7BB9)),
+      errorBuilder: (_, _, _) => const Icon(Icons.pets, size: 40, color: Color(0xFF2B7BB9)),
     );
   }
 
