@@ -211,7 +211,7 @@ class InfoHargaScreen extends StatelessWidget {
                                     ]),
                                     const SizedBox(height: 8),
                                     const Text(
-                                      '• Harga dikalikan jumlah hari penitipan\n• Kebutuhan dasar sudah termasuk biaya pokok\n• Pembayaran dilakukan saat check-in',
+                                      '• Harga dikalikan jumlah hari penitipan\n• Kebutuhan dasar sudah termasuk biaya pokok\n• Pembayaran dilakukan saat check-in\n(untuk metode pembayaran cash)',
                                       style: TextStyle(fontSize: 12, color: Color(0xFF5E6A75), height: 1.5)),
                                   ],
                                 ),

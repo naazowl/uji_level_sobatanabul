@@ -375,7 +375,7 @@ class _PengasuhCard extends StatelessWidget {
                 Image.asset(
                   pengasuh.fotoPath,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     color: pengasuh.bgColor,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,

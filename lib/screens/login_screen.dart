@@ -80,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Image.asset(
                             'assets/images/kucing_anjing.png',
                             height: 140,
-                            errorBuilder: (_, __, ___) => const Icon(
+                            errorBuilder: (_, _, _) => const Icon(
                                 Icons.pets,
                                 size: 80,
                                 color: Color(0xFFFF8C42)),
@@ -133,12 +133,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                   controller: _emailController,
                                   keyboardType: TextInputType.emailAddress,
                                   validator: (v) {
-                                    if (v == null || v.trim().isEmpty)
+                                    if (v == null || v.trim().isEmpty) {
                                       return 'Email tidak boleh kosong';
+                                    }
                                     if (!RegExp(
                                             r'^[\w\.-]+@[\w\.-]+\.\w+$')
-                                        .hasMatch(v))
+                                        .hasMatch(v)) {
                                       return 'Format email tidak valid';
+                                    }
                                     return null;
                                   },
                                   decoration: InputDecoration(
@@ -174,10 +176,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                   controller: _passwordController,
                                   obscureText: !_showPassword,
                                   validator: (v) {
-                                    if (v == null || v.isEmpty)
+                                    if (v == null || v.isEmpty) {
                                       return 'Kata sandi tidak boleh kosong';
-                                    if (v.length < 6)
+                                    }
+                                    if (v.length < 6) {
                                       return 'Minimal 6 karakter';
+                                    }
                                     return null;
                                   },
                                   decoration: InputDecoration(

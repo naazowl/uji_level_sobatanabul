@@ -373,7 +373,7 @@ class _FasilitasCard extends StatelessWidget {
                 Image.asset(
                   fasilitas.imagePath,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     color: fasilitas.bgColor,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,

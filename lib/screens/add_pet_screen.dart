@@ -1,6 +1,6 @@
 // lib/screens/add_pet_screen.dart
-// Fix: _buildCheckbox sekarang menggunakan InkWell + Material agar area tap
-// lebih luas dan reliable. Tidak ada perubahan logika lainnya.
+// Fix: _buildCheckbox menggunakan Ink + InkWell agar efek ripple tidak tertutup warna container.
+// Fix: Menyimpan berat badan berupa angka murni agar tidak merusak TextField angka saat di-edit.
 
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -83,8 +83,10 @@ class _AddPetScreenState extends State<AddPetScreen> {
 
     final String imgPath = _fotoFile?.path ?? 'assets/images/cello.png';
     final bool isLocal = _fotoFile != null;
+    
+    // Simpan berupa data teks angka murni agar saat masuk ke EditPetScreen tidak rusak/error
     final String berat =
-        _beratController.text.isNotEmpty ? '${_beratController.text} kg' : '-';
+        _beratController.text.trim().isNotEmpty ? _beratController.text.trim() : '-';
 
     final pet = PetModel(
       name: _namaController.text.trim(),
@@ -92,12 +94,12 @@ class _AddPetScreenState extends State<AddPetScreen> {
       imagePath: imgPath,
       isLocalFile: isLocal,
       breed: _rasController.text.isNotEmpty ? _rasController.text : '-',
-      weight: berat,
+      weight: berat, // Menyimpan nilai murni (Contoh: "5" bukan "5 kg")
       gender: _jenisKelamin,
       specialNotes: _catatanController.text.isNotEmpty
           ? _catatanController.text
           : 'Tidak ada catatan khusus',
-      jenisHewan: _jenisHewan!, // ✅ dipastikan tidak null sebelum sampai sini
+      jenisHewan: _jenisHewan!, // dipastikan tidak null sebelum sampai sini
     );
 
     Navigator.pop(context, {
@@ -351,7 +353,7 @@ class _AddPetScreenState extends State<AddPetScreen> {
     );
   }
 
-  // ── FIX: Gunakan Material + InkWell agar area tap seluruh container ─────────
+  // ── FIX: Menggunakan Ink agar efek ripple Material tidak terpotong warna container ──
   Widget _buildCheckbox(String label) {
     final isSelected = _jenisHewan == label;
     return Material(
@@ -361,7 +363,7 @@ class _AddPetScreenState extends State<AddPetScreen> {
         onTap: () {
           setState(() => _jenisHewan = label);
         },
-        child: Container(
+        child: Ink(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           decoration: BoxDecoration(
             color: isSelected

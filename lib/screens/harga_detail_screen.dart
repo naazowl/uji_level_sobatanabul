@@ -155,7 +155,7 @@ class HargaDetailScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'Tarif Penitipan ${jenisHewan}',
+                          'Tarif Penitipan $jenisHewan',
                           textAlign: TextAlign.center,
                           style: const TextStyle(
                             fontSize: 22,

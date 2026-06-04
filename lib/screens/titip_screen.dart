@@ -34,7 +34,7 @@ class _TitipScreenState extends State<TitipScreen> {
     return Image.asset(
       pet.imagePath,
       fit: fit,
-      errorBuilder: (_, __, ___) =>
+      errorBuilder: (_, _, _) =>
           const Icon(Icons.pets, size: 50, color: Color(0xFF2B7BB9)),
     );
   }
@@ -47,7 +47,7 @@ class _TitipScreenState extends State<TitipScreen> {
       MaterialPageRoute(
         builder: (context) => TitipCalendarScreen(
           petName: pet.name,
-          petType: widget.pets[_selectedIndex!]['jenisHewan'] ?? 'Hewan',
+          petType: pet.jenisHewan, // ◄ DIUBAH: membaca langsung dari pet.jenisHewan
         ),
       ),
     ).then((result) {
@@ -57,7 +57,7 @@ class _TitipScreenState extends State<TitipScreen> {
         final provider = RiwayatProvider();
 
         // Format tanggal: dd/MM/yy HH:mm
-        String _fmt(DateTime dt) =>
+        String fmt(DateTime dt) =>
             '${dt.day.toString().padLeft(2, '0')}/'
             '${dt.month.toString().padLeft(2, '0')}/'
             '${dt.year.toString().substring(2)} '
@@ -68,7 +68,7 @@ class _TitipScreenState extends State<TitipScreen> {
         provider.tambahNotifikasi({
           'id': now.millisecondsSinceEpoch.toString(),
           'title': 'Hai, ${pet.name} berhasil dititipkan! 🎉',
-          'time': _fmt(now),
+          'time': fmt(now),
         });
 
         // Tambah laporan harian
@@ -208,7 +208,7 @@ class _TitipScreenState extends State<TitipScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Text(
-                      '🐾  Pilih hewan yang ingin kamu titipkan',
+                      '🐾  Pilih hewan yang ingin kamu dititipkan',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -320,7 +320,7 @@ class _TitipScreenState extends State<TitipScreen> {
           crossAxisCount: 2,
           crossAxisSpacing: 14,
           mainAxisSpacing: 14,
-          childAspectRatio: 0.85,
+          childAspectRatio: 0.82, // Diubah ke 0.82 agar memberikan tinggi extra untuk badge dan mencegah overflow
         ),
         itemCount: widget.pets.length,
         itemBuilder: (context, index) {
@@ -328,25 +328,35 @@ class _TitipScreenState extends State<TitipScreen> {
           final pet = data['pet'] as PetModel;
           final isSelected = _selectedIndex == index;
 
+          // ── KONDISI BERDASARKAN JENIS HEWAN (KUCING / ANJING) ──
+          final String jenis = pet.jenisHewan.toLowerCase();
+          final bool isAnjing = jenis == 'anjing';
+
+          // Tetapkan warna fallback default jika kartu tidak sedang dipilih (isSelected == false)
+          final Color bgUnselected = isAnjing ? const Color(0xFFEAF5FF) : const Color(0xFFFFF9E6);
+          final Color borderUnselected = isAnjing ? const Color(0xFFB3D7FF) : const Color(0xFFFFE5A3);
+          final Color badgeBgUnselected = isAnjing ? const Color(0xFFD0E8FF) : const Color(0xFFFFECC2);
+          final Color badgeTextUnselected = isAnjing ? const Color(0xFF2B7BB9) : const Color(0xFFFF8C42);
+
           return GestureDetector(
             onTap: () => setState(() => _selectedIndex = index),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               decoration: BoxDecoration(
-                color:
-                    isSelected ? const Color(0xFFFFF0E0) : Colors.white,
+                // Jika dipilih, pakai warna jingga bawaanmu. Jika tidak, bedakan warna kucing & anjing
+                color: isSelected ? const Color(0xFFFFF0E0) : bgUnselected,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: isSelected
                       ? const Color(0xFFFF8C42)
-                      : Colors.grey.shade200,
+                      : borderUnselected,
                   width: isSelected ? 2 : 1,
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: isSelected
                         ? const Color(0xFFFF8C42).withValues(alpha: 0.15)
-                        : Colors.black.withValues(alpha: 0.05),
+                        : Colors.black.withValues(alpha: 0.04),
                     blurRadius: 10,
                     offset: const Offset(0, 3),
                   ),
@@ -405,17 +415,17 @@ class _TitipScreenState extends State<TitipScreen> {
                       decoration: BoxDecoration(
                         color: isSelected
                             ? const Color(0xFFFF8C42).withValues(alpha: 0.1)
-                            : const Color(0xFFD6EFFA),
+                            : badgeBgUnselected,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        data['jenisHewan'] ?? 'Hewan',
+                        pet.jenisHewan,
                         style: TextStyle(
                           fontSize: 11,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w700,
                           color: isSelected
                               ? const Color(0xFFFF8C42)
-                              : const Color(0xFF2B7BB9),
+                              : badgeTextUnselected,
                         ),
                       ),
                     ),

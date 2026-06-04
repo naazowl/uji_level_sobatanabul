@@ -114,7 +114,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Image.asset(
       'assets/images/profile.jpg',
       fit: BoxFit.cover,
-      errorBuilder: (_, __, ___) => Container(
+      errorBuilder: (_, _, _) => Container(
         color: const Color(0xFFEEE0FF),
         child: const Icon(Icons.person, size: 50, color: Colors.purple),
       ),
@@ -149,16 +149,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       if (_isEditing)
                         GestureDetector(
                           onTap: () {
-                            setState(() => _isEditing = false);
+                            // Ambil data terbaru dari controller terlebih dahulu
+                            final updatedNama = _namaController.text;
+                            final updatedEmail = _emailController.text;
+                            final updatedUsername = _usernameController.text;
+                            final updatedTelepon = _teleponController.text;
+                            final updatedImagePath = _imageFile?.path ?? widget.currentImagePath;
+
+                            setState(() {
+                              _isEditing = false;
+                            });
                             
-                            // 4. PERBAIKAN UTAMA: Kembalikan semua data teks + path gambar baru ke HomeScreen
+                            // 4. PERBAIKAN UTAMA: Mengembalikan data yang sudah pasti ter-update ke HomeScreen
                             Navigator.pop(context, {
-                              'nama': _namaController.text,
-                              'email': _emailController.text,
-                              'username': _usernameController.text,
-                              'alamat': _alamatController.text,
-                              'telepon': _teleponController.text,
-                              'imagePath': _imageFile?.path ?? widget.currentImagePath, // 💡 Path dikirim balik ke home
+                              'nama': updatedNama,
+                              'email': updatedEmail,
+                              'username': updatedUsername,
+                              'alamat': widget.alamat, // Tetap mengirim alamat bawaan dari widget
+                              'telepon': updatedTelepon,
+                              'imagePath': updatedImagePath, 
                             });
 
                             ScaffoldMessenger.of(context).showSnackBar(

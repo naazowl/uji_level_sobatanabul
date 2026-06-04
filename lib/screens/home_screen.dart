@@ -1,12 +1,4 @@
 // lib/screens/home_screen.dart
-// Gabungan dari dua versi:
-//   1. Parameter opsional dari CompleteProfileScreen (v2).
-//   2. initState untuk inisialisasi data user (v2).
-//   3. Badge merah notifikasi hanya muncul jika ada notifikasi (v1).
-//   4. setState refresh badge setelah kembali dari TitipScreen (v1).
-//   5. Handling delete & update pet via Map result (v1).
-//   6. Styling top bar dengan Material + elevation (v1).
-//   7. errorBuilder 3 parameter yang benar (v2).
 
 import 'dart:io';
 import 'package:flutter/foundation.dart';
@@ -34,13 +26,11 @@ import 'package:app1/widgets/riwayat/daily_report_banner.dart';
 import 'package:app1/widgets/riwayat/pet_card.dart';
 
 class HomeScreen extends StatefulWidget {
-  // ✅ Parameter opsional dari CompleteProfileScreen
   final String? namaAwal;
   final String? emailAwal;
   final String? usernameAwal;
   final String? teleponAwal;
   final String? imagePathAwal;
-  // alamat TIDAK dari form, dikelola LocationScreen
 
   const HomeScreen({
     super.key,
@@ -69,11 +59,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // ✅ Gunakan data dari CompleteProfileScreen jika ada, fallback ke default
     _namaUser     = widget.namaAwal     ?? 'Naresa';
     _emailUser    = widget.emailAwal    ?? 'Naresa@gmail.com';
     _usernameUser = widget.usernameAwal ?? 'Naresarena';
-    _alamatUser   = 'Kota Bogor, Indonesia'; // dikelola LocationScreen
+    _alamatUser   = 'Kota Bogor, Indonesia';
     _teleponUser  = widget.teleponAwal  ?? '12345678910';
     _imagePathUser = widget.imagePathAwal;
   }
@@ -103,7 +92,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Badge merah hanya muncul jika ada notifikasi
     final hasNotifications = RiwayatProvider().notifications.isNotEmpty;
 
     return Scaffold(
@@ -138,7 +126,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               builder: (_) => const NotificationScreen(),
                             ),
                           );
-                          // ✅ Refresh badge setelah kembali dari notifikasi
                           setState(() {});
                         },
                         child: Padding(
@@ -147,7 +134,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               const Icon(Icons.notifications_none_rounded,
                                   size: 24, color: AppColors.textDark),
-                              // ✅ Badge merah kondisional
                               if (hasNotifications)
                                 Positioned(
                                   top: 2,
@@ -209,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
 
-                    // Logout Button
+                    // Logout Button dengan Peringatan Dialog
                     Material(
                       color: Colors.white,
                       shape: const CircleBorder(),
@@ -218,11 +204,44 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: InkWell(
                         borderRadius: BorderRadius.circular(100),
                         onTap: () {
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const OnboardingScreen()),
-                            (route) => false,
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text(
+                                  'Konfirmasi Keluar',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                content: const Text('Apakah Anda yakin ingin keluar dari akun ini?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text(
+                                      'Batal',
+                                      style: TextStyle(color: AppColors.textGrey),
+                                    ),
+                                  ),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.primary,
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                      Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (_) => const OnboardingScreen()),
+                                        (route) => false,
+                                      );
+                                    },
+                                    child: const Text('Keluar'),
+                                  ),
+                                ],
+                              );
+                            },
                           );
                         },
                         child: const Padding(
@@ -347,7 +366,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             builder: (_) => TitipScreen(pets: mappedPets),
                           ),
                         );
-                        // ✅ Refresh badge setelah kembali dari TitipScreen
                         setState(() {});
                       },
                     ),

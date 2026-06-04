@@ -59,7 +59,11 @@ class _EditPetScreenState extends State<EditPetScreen> {
     _catatanController = TextEditingController(text: widget.catatan.isNotEmpty ? widget.catatan : (widget.pet.specialNotes ?? ''));
     
     _jenisKelamin = widget.jenisKelamin.isNotEmpty ? widget.jenisKelamin : (widget.pet.gender ?? 'Jantan');
-    _jenisHewan = widget.jenisHewan;
+    
+    // ── PERBAIKAN 1: Ambil data jenis asli dari object pet jika parameter kosong ──
+    _jenisHewan = widget.jenisHewan != 'Anjing' 
+        ? widget.jenisHewan 
+        : widget.pet.jenisHewan;
 
     _fotoPathLama = widget.fotoPathAwal ?? widget.pet.imagePath;
     _isFotoLokaLama = widget.fotoPathAwal != null ? widget.isFotoLocalAwal : (widget.pet.isLocalFile ?? false);
@@ -117,9 +121,10 @@ class _EditPetScreenState extends State<EditPetScreen> {
     final String finalFotoPath = _fotoBaruFile?.path ?? _fotoPathLama ?? widget.pet.imagePath;
     final bool finalIsLocal = _fotoBaruFile != null ? true : _isFotoLokaLama;
 
-    // Bungkus semua perubahan baru ke model objek PetModel
+    // ── PERBAIKAN 2: Masukkan property jenisHewan ke dalam PetModel baru ──
     final updatedPet = PetModel(
       name: _namaController.text,
+      jenisHewan: _jenisHewan, // ◄ DATA BARU DIUPDATE KE MODEL
       age: _umurController.text.isNotEmpty ? _umurController.text : '-',
       imagePath: finalFotoPath,
       isLocalFile: finalIsLocal,

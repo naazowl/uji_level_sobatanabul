@@ -97,7 +97,7 @@ SafeArea(
                           'assets/images/kucing_anjing.png',
                           height: 180, // Sedikit diperkecil agar lebih aman di layar pendek
                           fit: BoxFit.contain,
-                          errorBuilder: (_, __, ___) => const Icon(
+                          errorBuilder: (_, _, _) => const Icon(
                             Icons.pets,
                             size: 100,
                             color: Color(0xFF2B7BB9),

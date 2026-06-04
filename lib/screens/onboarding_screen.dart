@@ -195,7 +195,7 @@ class _OnboardingPage extends StatelessWidget {
                   width: 260,
                   height: 260,
                   fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) => Icon(
+                  errorBuilder: (_, _, _) => Icon(
                     Icons.pets,
                     size: 120,
                     color: primaryColor.withValues(alpha: 0.3),

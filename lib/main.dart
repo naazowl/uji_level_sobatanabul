@@ -3,10 +3,8 @@ import 'package:app1/theme/app_theme.dart';
 
 // Kumpulan Import Screens
 import 'package:app1/screens/splash_screen.dart';
-import 'package:app1/screens/onboarding_screen.dart';
-import 'package:app1/screens/login_screen.dart';       // Tambahkan ini jika belum ada
-import 'package:app1/screens/register_screen.dart';    // Tambahkan ini jika belum ada
-import 'package:app1/screens/home_screen.dart';
+// Tambahkan ini jika belum ada
+// Tambahkan ini jika belum ada
 
 void main() {
   runApp(const SobatAnabulApp());

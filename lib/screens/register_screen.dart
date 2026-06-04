@@ -157,11 +157,13 @@ class _RegisterScreenState extends State<RegisterScreen>
                               icon: Icons.email_outlined,
                               keyboardType: TextInputType.emailAddress,
                               validator: (v) {
-                                if (v == null || v.trim().isEmpty)
+                                if (v == null || v.trim().isEmpty) {
                                   return 'Email tidak boleh kosong';
+                                }
                                 if (!RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$')
-                                    .hasMatch(v))
+                                    .hasMatch(v)) {
                                   return 'Format email tidak valid';
+                                }
                                 return null;
                               },
                             ),
@@ -195,8 +197,9 @@ class _RegisterScreenState extends State<RegisterScreen>
                                     () => _showPassword = !_showPassword),
                               ),
                               validator: (v) {
-                                if (v == null || v.isEmpty)
+                                if (v == null || v.isEmpty) {
                                   return 'Kata sandi tidak boleh kosong';
+                                }
                                 if (v.length < 6) return 'Minimal 6 karakter';
                                 return null;
                               },
@@ -220,10 +223,12 @@ class _RegisterScreenState extends State<RegisterScreen>
                                     () => _showKonfirmasi = !_showKonfirmasi),
                               ),
                               validator: (v) {
-                                if (v == null || v.isEmpty)
+                                if (v == null || v.isEmpty) {
                                   return 'Konfirmasi tidak boleh kosong';
-                                if (v != _passwordController.text)
+                                }
+                                if (v != _passwordController.text) {
                                   return 'Kata sandi tidak cocok';
+                                }
                                 return null;
                               },
                             ),
@@ -319,7 +324,7 @@ class _LogoWidget extends StatelessWidget {
         child: Image.asset(
           'assets/images/kucing_anjing.png',
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) =>
+          errorBuilder: (_, _, _) =>
               const Icon(Icons.pets, size: 80, color: Color(0xFFF5A623)),
         ),
       ),

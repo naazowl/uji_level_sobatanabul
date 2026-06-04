@@ -165,10 +165,12 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty)
+                    if (v == null || v.trim().isEmpty) {
                       return 'Email wajib diisi';
-                    if (!RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$').hasMatch(v))
+                    }
+                    if (!RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$').hasMatch(v)) {
                       return 'Format email tidak valid';
+                    }
                     // ✅ Validasi harus sama dengan email saat login/daftar
                     if (v.trim() != widget.emailDariAuth) {
                       return 'Email harus sama dengan yang digunakan saat masuk/daftar';
@@ -183,8 +185,9 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                 _buildField(
                   controller: _namaPenggunaController,
                   validator: (v) {
-                    if (v == null || v.trim().isEmpty)
+                    if (v == null || v.trim().isEmpty) {
                       return 'Nama pengguna wajib diisi';
+                    }
                     if (widget.namaPenggunaDariAuth != null &&
                         widget.namaPenggunaDariAuth!.isNotEmpty &&
                         v.trim() != widget.namaPenggunaDariAuth) {

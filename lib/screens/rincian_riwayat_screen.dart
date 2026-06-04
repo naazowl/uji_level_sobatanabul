@@ -173,7 +173,7 @@ class RincianRiwayatScreen extends StatelessWidget {
                           ],
                         ),
                       );
-                    }).toList(),
+                    }),
 
                     const SizedBox(height: 16),
                     const Divider(color: Colors.black38, thickness: 1), 

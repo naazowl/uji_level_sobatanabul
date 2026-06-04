@@ -146,7 +146,6 @@ class InfoScreen extends StatelessWidget {
                 includes: const [
                   'Makan & minum harian',
                   'Kebersihan kandang',
-                  'Pemantauan kesehatan dasar',
                   'Laporan harian via aplikasi',
                 ],
                 tidakTermasuk: const [
@@ -168,7 +167,6 @@ class InfoScreen extends StatelessWidget {
                 includes: const [
                   'Makan & minum harian',
                   'Kebersihan kandang',
-                  'Pemantauan kesehatan dasar',
                   'Laporan harian via aplikasi',
                 ],
                 tidakTermasuk: const [
@@ -202,7 +200,7 @@ class InfoScreen extends StatelessWidget {
                 onTap: () => Navigator.push(context,
                   MaterialPageRoute(builder: (_) => const PengasuhScreen())),
                 child: const _PreviewPengasuhCard(
-                  imagePath: 'assets/images/pengasuh_shinta.jpg',
+                  imagePath: 'assets/images/pengasuh_shinta.jpeg',
                   nama: 'Kak Shinta (24 Tahun)',
                   jabatan: 'Cat Whisperer & Nutritionist',
                   bgColor: Color(0xFFFDF0E6),
@@ -213,7 +211,7 @@ class InfoScreen extends StatelessWidget {
                 onTap: () => Navigator.push(context,
                   MaterialPageRoute(builder: (_) => const PengasuhScreen())),
                 child: const _PreviewPengasuhCard(
-                  imagePath: 'assets/images/pengasuh_tiara.jpg',
+                  imagePath: 'assets/images/pengasuh_tiara.jpeg',
                   nama: 'Kak Tiara (22 Tahun)',
                   jabatan: 'Playtime Coordinator & Socialization Expert',
                   bgColor: Color(0xFFF3EAFB),

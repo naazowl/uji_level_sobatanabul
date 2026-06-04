@@ -109,9 +109,9 @@ class _PerawatanDetailScreenState extends State<PerawatanDetailScreen> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (_, __, ___) =>
+          pageBuilder: (_, _, _) =>
               PerawatanDetailScreen(kategori: _nextKategori!),
-          transitionsBuilder: (_, anim, __, child) => SlideTransition(
+          transitionsBuilder: (_, anim, _, child) => SlideTransition(
             position: Tween<Offset>(
               begin: const Offset(1.0, 0.0),
               end: Offset.zero,
@@ -220,7 +220,7 @@ class _PerawatanDetailScreenState extends State<PerawatanDetailScreen> {
                               fit: BoxFit.cover,
                               width: double.infinity,
                               // Placeholder kalau foto belum ada
-                              errorBuilder: (_, __, ___) => Container(
+                              errorBuilder: (_, _, _) => Container(
                                 decoration: BoxDecoration(
                                   color: data.bgColor,
                                   borderRadius: BorderRadius.circular(20),
